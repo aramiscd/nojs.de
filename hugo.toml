@@ -1,0 +1,4 @@
+baseURL = 'https://nojs.de/'
+languageCode = 'de-de'
+title = 'nojs.de'
+theme = 'book'
