@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="de-de" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="2023-02-17
+Negation in Haskell und Purescript # Haskell fetzt! Allerdings ist Haskell in seiner Nische (rein funktionale ML-Sprachen) längst nicht mehr allein. Die moderneren Abkömmlinge dieser Familie bringen hier und da interessante Verbesserungen mit. Ein schönes Beispiel dafür ist die not Funktion in Purescript.
+Werte negieren # In Haskell negiert not den Wert eines boolschen Ausdrucks:
+-- Haskell GHCi Session ​ &gt; not True False ​ &gt; not False True In Purescript gilt das gleiche:">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="Negation in Haskell Und Purescript" />
+<meta property="og:description" content="2023-02-17
+Negation in Haskell und Purescript # Haskell fetzt! Allerdings ist Haskell in seiner Nische (rein funktionale ML-Sprachen) längst nicht mehr allein. Die moderneren Abkömmlinge dieser Familie bringen hier und da interessante Verbesserungen mit. Ein schönes Beispiel dafür ist die not Funktion in Purescript.
+Werte negieren # In Haskell negiert not den Wert eines boolschen Ausdrucks:
+-- Haskell GHCi Session ​ &gt; not True False ​ &gt; not False True In Purescript gilt das gleiche:" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nojs.de/docs/weblog/2023-02-17/" /><meta property="article:section" content="docs" />
+
+
+<title>Negation in Haskell Und Purescript | nojs.de</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.png" type="image/x-icon">
+<link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.4258bd5af94aa29f99a29814526a0d41a5c2699af33fed00064063643b58b257.js" integrity="sha256-Qli9WvlKop&#43;ZopgUUmoNQaXCaZrzP&#43;0ABkBjZDtYslc=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>nojs.de</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2023-02-17/" class="active">Negation in Haskell Und Purescript</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2023-01-18/" class="">Closures</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2022-12-02/" class="">Trial Beim MC Post Leipzig</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2022-12-01/" class="">Nix Expression Language</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2022-11-30/" class="">Digital Gardening</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>Negation in Haskell Und Purescript</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#werte-negieren">Werte negieren</a></li>
+    <li><a href="#funktionen-negieren">Funktionen negieren</a></li>
+    <li><a href="#wie-ist-das-umgesetzt">Wie ist das umgesetzt?</a></li>
+    <li><a href="#bonus">Bonus</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown"><p>2023-02-17</p>
+<h1 id="negation-in-haskell-und-purescript">
+  Negation in Haskell und Purescript
+  <a class="anchor" href="#negation-in-haskell-und-purescript">#</a>
+</h1>
+<p>Haskell fetzt!  Allerdings ist Haskell in seiner Nische (rein
+funktionale ML-Sprachen) längst nicht mehr allein.  Die moderneren
+Abkömmlinge dieser Familie bringen hier und da interessante
+Verbesserungen mit.  Ein schönes Beispiel dafür ist die <code>not</code>
+Funktion in Purescript.</p>
+<h2 id="werte-negieren">
+  Werte negieren
+  <a class="anchor" href="#werte-negieren">#</a>
+</h2>
+<p>In Haskell negiert not den Wert eines boolschen Ausdrucks:</p>
+<pre tabindex="0"><code>-- Haskell GHCi Session
+​
+&gt; not True
+False
+​
+&gt; not False
+True
+</code></pre><p>In Purescript gilt das gleiche:</p>
+<pre tabindex="0"><code>-- Purescript PSCi Session
+​
+&gt; not true
+false
+​
+&gt; not false
+true
+</code></pre><p>Das ist nicht weiter kompliziert.</p>
+<h2 id="funktionen-negieren">
+  Funktionen negieren
+  <a class="anchor" href="#funktionen-negieren">#</a>
+</h2>
+<p>Grundsätzlich müssten sich auf die gleiche Weise auch Funktionen
+negieren lassen, die nach <code>Bool</code> abbilden.  Für eine Funktion <code>f :: a -&gt; Bool</code> wäre <code>not f</code> dann ebenfalls eine Funktion <code>a -&gt; Bool</code>,
+so dass <code>( not f ) x</code> &hellip;</p>
+<ul>
+<li>zu <code>True</code> auswertet wenn <code>f x</code> zu <code>False</code> auswertet, bzw.</li>
+<li>zu <code>False</code> auswertet wenn <code>f x</code> zu <code>True</code> auswertet.</li>
+</ul>
+<p>Haskells <code>not</code> kann das nicht leisten.  Um das zu demonstrieren,
+definieren wir eine <code>even</code> Funktion, die entscheidet, ob eine ganze
+Zahl gerade ist:</p>
+<pre tabindex="0"><code>-- Haskell GHCi Session
+​
+&gt; even n = modBy 2 n == 0
+
+&gt; even 0
+True
+​
+&gt; even 1
+False
+​
+&gt; even 2
+True
+​
+&gt; even 3
+False
+</code></pre><p><em>Anmerkung:</em> Mein Haskell ist nicht ganz idiomatisch.  <code>modBy</code> ist
+<a href="https://git.sr.ht/~aramis/ulme/tree/master/item/src/Ulme.hs#L377">selbstdefiniert</a>.</p>
+<p>Wir müssten also eine <code>odd</code> Funktion definieren können, die
+entscheidet, ob eine ganze Zahl ungerade ist, indem wir <code>even</code> mit
+<code>not</code> negieren.  Wenn wir versuchen, das in Haskell umzusetzen,
+scheitern wir:</p>
+<pre tabindex="0"><code>-- Haskell GHCi Session
+​
+&gt; odd = not even
+&lt;interactive&gt;: error:
+    • Couldn&#39;t match expected type ‘Bool’ with actual type ‘a0 -&gt; Bool’
+    • ...
+</code></pre><p>In Purescript ist das gar kein Problem.  Hier ist die <code>even</code>
+Funktion in Purescript:</p>
+<pre tabindex="0"><code>-- Purescript PSCi Session
+​
+&gt; even n = mod n 2 == 0
+​
+&gt; even 0
+true
+​
+&gt; even 1
+false
+​
+&gt; even 2
+true
+​
+&gt; even 3
+false
+</code></pre><p>Wenn wir <code>even</code> mit <code>not</code> negieren, erhalten wir ohne Probleme unsere
+<code>odd</code> Funktion:</p>
+<pre tabindex="0"><code>-- Purescript GHCi Session
+​
+&gt; odd = not even
+​
+&gt; odd 0
+false
+​
+&gt; odd 1
+true
+​
+&gt; odd 2
+false
+​
+&gt; odd 3
+true
+</code></pre><h2 id="wie-ist-das-umgesetzt">
+  Wie ist das umgesetzt?
+  <a class="anchor" href="#wie-ist-das-umgesetzt">#</a>
+</h2>
+<p>In Haskell ist <code>not</code> eine Funktion <code>Bool -&gt; Bool</code>.
+In Purescript ist <code>not</code> eine Funktion <code>HeytingAlgebra a =&gt; a -&gt; a</code>.  Die Heyting-Algebra ist offenbar eine
+Verallgemeinerung der booleschen Algebra.  Auf den <a href="https://github.com/purescript/purescript-prelude/blob/v6.0.1/src/Data/HeytingAlgebra.purs#L78">ersten
+Blick</a>
+spricht nichts dagegen, <code>not</code> auf die gleiche Weise auch
+in Haskell zu verallgemeinern.  Vielleicht nehme ich
+das mal in Angriff und versuche <code>not</code> in meinem <a href="https://git.sr.ht/~aramis/ulme">DIY
+Prelude</a> entsprechend anzupassen.</p>
+<h2 id="bonus">
+  Bonus
+  <a class="anchor" href="#bonus">#</a>
+</h2>
+<p>Dann ist mir noch ein schönes Beispiel dafür eingefallen, dass man
+manchmal in der Lage ist, zu erkennen, zu welchem Wert ein Ausdruck
+auswerten müsste, obwohl der Compiler auf dem Schlauch steht:</p>
+<pre tabindex="0"><code>foldr (+) 0 ( repeat 0 )
+</code></pre><p>Der Ausdruck terminiert weder in Haskell noch in Purescript, weil
+<code>repeat</code> eine unendliche Sequenz erzeugt.  Anschaulich ist völlig
+klar, dass er zu <code>0</code> auswerten müsste, denn wir summieren einfach
+nur Nullen auf.  Formal lässt sich das auch leicht rechtfertigen:
+wenn wir eine unendliche Summe über einem Monoid bilden, wobei
+alle Summanden das neutrale Element sind, dann ergibt die Summe
+schon per Definition ebenfalls das neutrale Element.</p>
+<p>Es gibt weitere Beispiele dieser Art.  Der folgende Ausdruck
+terminiert auch nicht, müsste aber zum leeren String <code>&quot;&quot;</code> auswerten.
+Anschaulich ist das auch wieder völlig klar.  Formal gilt das
+gleiche wie oben.</p>
+<pre tabindex="0"><code>foldr (++) &#34;&#34; ( repeat &#34;&#34; )
+</code></pre><p><em>Hinweis:</em> <code>(++)</code> ist hier ein Alias für <code>(&lt;&gt;)</code>.</p>
+<p>Der folgende Ausdruck terminiert auch nicht, müsste aber in Haskell
+zur leeren Liste <code>[]</code> auswerten.</p>
+<pre tabindex="0"><code>foldr (++) [] ( repeat [] )
+</code></pre><p>Spannend ist die Frage, wie man das umsetzen könnte. Alle Beispiele
+haben die Form:</p>
+<pre tabindex="0"><code>foldr mappend mempty ( repeat mempty )
+</code></pre><p>Wenn die Faltung in der Lage wäre, diese Form zu erkennen, könnte
+sie in diesem Fall zu <code>mempty</code> auswerten.</p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#werte-negieren">Werte negieren</a></li>
+    <li><a href="#funktionen-negieren">Funktionen negieren</a></li>
+    <li><a href="#wie-ist-das-umgesetzt">Wie ist das umgesetzt?</a></li>
+    <li><a href="#bonus">Bonus</a></li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

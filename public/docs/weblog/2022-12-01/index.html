@@ -1,0 +1,3038 @@
+<!DOCTYPE html>
+<html lang="de-de" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="2022-12-01
+Nix Expression Language # Ich erkunde die Nix Expression Language. Mein Startpunkt ist https://learnxinyminutes.com/docs/nix/. Sehr hilfreich ist auch die Dokumentation, welche über die Nix Repl verfügbar ist.
+Auswertung # Die auszuwertenden Ausdrücke schreibe ich in eine Datei scratch.nix. Die Auswertung erfolgt so:
+$ nix-instantiate --eval scratch.nix Für mehr Komfort kann man inotifywait benutzen um die Auswertung jedesmal anzustoßen wenn die Datei scratch.nix gespeichert wird:
+$ while true inotifywait -q -e modify scratch.">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="Nix Expression Language" />
+<meta property="og:description" content="2022-12-01
+Nix Expression Language # Ich erkunde die Nix Expression Language. Mein Startpunkt ist https://learnxinyminutes.com/docs/nix/. Sehr hilfreich ist auch die Dokumentation, welche über die Nix Repl verfügbar ist.
+Auswertung # Die auszuwertenden Ausdrücke schreibe ich in eine Datei scratch.nix. Die Auswertung erfolgt so:
+$ nix-instantiate --eval scratch.nix Für mehr Komfort kann man inotifywait benutzen um die Auswertung jedesmal anzustoßen wenn die Datei scratch.nix gespeichert wird:
+$ while true inotifywait -q -e modify scratch." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://nojs.de/docs/weblog/2022-12-01/" /><meta property="article:section" content="docs" />
+
+
+<title>Nix Expression Language | nojs.de</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.png" type="image/x-icon">
+<link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.4258bd5af94aa29f99a29814526a0d41a5c2699af33fed00064063643b58b257.js" integrity="sha256-Qli9WvlKop&#43;ZopgUUmoNQaXCaZrzP&#43;0ABkBjZDtYslc=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>nojs.de</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2023-02-17/" class="">Negation in Haskell Und Purescript</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2023-01-18/" class="">Closures</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2022-12-02/" class="">Trial Beim MC Post Leipzig</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2022-12-01/" class="active">Nix Expression Language</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/weblog/2022-11-30/" class="">Digital Gardening</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>Nix Expression Language</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#auswertung">Auswertung</a></li>
+    <li><a href="#einfache-sprachbestandteile">Einfache Sprachbestandteile</a>
+      <ul>
+        <li><a href="#kommentare">Kommentare</a></li>
+        <li><a href="#booleans">Booleans</a></li>
+        <li><a href="#verzweigung">Verzweigung</a></li>
+        <li><a href="#zahlen">Zahlen</a></li>
+        <li><a href="#strings">Strings</a></li>
+        <li><a href="#pfade">Pfade</a></li>
+        <li><a href="#imports">Imports</a></li>
+        <li><a href="#let-in-ausdrücke">Let-In-Ausdrücke</a></li>
+        <li><a href="#funktionen">Funktionen</a></li>
+        <li><a href="#listen">Listen</a></li>
+        <li><a href="#sets-mengen">Sets (Mengen)</a></li>
+        <li><a href="#das-with-schlüsselwort">Das <code>with</code> Schlüsselwort</a></li>
+        <li><a href="#set-patterns">Set Patterns</a></li>
+        <li><a href="#fehler">Fehler</a></li>
+      </ul>
+    </li>
+    <li><a href="#impurity">Impurity</a>
+      <ul>
+        <li><a href="#builtinsgetenv">builtins.getEnv</a></li>
+        <li><a href="#builtinstrace">builtins.trace</a></li>
+        <li><a href="#builtinstofile">builtins.toFile</a></li>
+      </ul>
+    </li>
+    <li><a href="#top-level-namen">Top-Level Namen</a>
+      <ul>
+        <li><a href="#map">map</a></li>
+        <li><a href="#basenameof">baseNameOf</a></li>
+        <li><a href="#dirof">dirOf</a></li>
+        <li><a href="#null-isnull">null, isNull</a></li>
+        <li><a href="#tostring">toString</a></li>
+        <li><a href="#break">break</a></li>
+        <li><a href="#removeattrs">removeAttrs</a></li>
+        <li><a href="#fromtoml">fromTOML</a></li>
+        <li><a href="#scopedimport">scopedImport</a></li>
+        <li><a href="#fetchgit-fetchmercurial-fetchtarball-fetchtree">fetchGit, fetchMercurial, fetchTarball, fetchTree</a></li>
+        <li><a href="#derivation-derivationstrict">derivation, derivationStrict</a></li>
+        <li><a href="#placeholder">placeholder</a></li>
+      </ul>
+    </li>
+    <li><a href="#built-ins">Built-ins</a>
+      <ul>
+        <li><a href="#builtinsadd">builtins.add</a></li>
+        <li><a href="#builtinsadderrorcontext">builtins.addErrorContext</a></li>
+        <li><a href="#builtinsall">builtins.all</a></li>
+        <li><a href="#builtinsany">builtins.any</a></li>
+        <li><a href="#builtinsappendcontext">builtins.appendContext</a></li>
+        <li><a href="#builtinsattrnames">builtins.attrNames</a></li>
+        <li><a href="#builtinsattrvalues">builtins.attrValues</a></li>
+        <li><a href="#builtinsbitand">builtins.bitAnd</a></li>
+        <li><a href="#builtinsbitor">builtins.bitOr</a></li>
+        <li><a href="#builtinsbitxor">builtins.bitXor</a></li>
+        <li><a href="#builtinsbuiltins">builtins.builtins</a></li>
+        <li><a href="#builtinscatattrs">builtins.catAttrs</a></li>
+        <li><a href="#builtinsceil">builtins.ceil</a></li>
+        <li><a href="#builtinscompareversions">builtins.compareVersions</a></li>
+        <li><a href="#builtinsconcatlists">builtins.concatLists</a></li>
+        <li><a href="#builtinsconcatmap">builtins.concatMap</a></li>
+        <li><a href="#builtinsconcatstringssep">builtins.concatStringsSep</a></li>
+        <li><a href="#builtinscurrentsystem">builtins.currentSystem</a></li>
+        <li><a href="#builtinscurrenttime">builtins.currentTime</a></li>
+        <li><a href="#builtinsseq">builtins.seq</a></li>
+        <li><a href="#builtinsdeepseq">builtins.deepSeq</a></li>
+        <li><a href="#builtinsdiv">builtins.div</a></li>
+        <li><a href="#builtinselem">builtins.elem</a></li>
+        <li><a href="#builtinselemat">builtins.elemAt</a></li>
+        <li><a href="#builtinsfetchurl">builtins.fetchurl</a></li>
+        <li><a href="#builtinsfilter">builtins.filter</a></li>
+        <li><a href="#builtinsfiltersource">builtins.filterSource</a></li>
+        <li><a href="#builtinsfindfile">builtins.findFile</a></li>
+        <li><a href="#builtinsfloor">builtins.floor</a></li>
+        <li><a href="#builtinsfoldl">builtins.foldl'</a></li>
+        <li><a href="#builtinsfromjson">builtins.fromJSON</a></li>
+        <li><a href="#builtinsfunctionargs">builtins.functionArgs</a></li>
+        <li><a href="#builtinsgenlist">builtins.genList</a></li>
+        <li><a href="#builtinsgenericclosure">builtins.genericClosure</a></li>
+        <li><a href="#builtinsgetattr">builtins.getAttr</a></li>
+        <li><a href="#builtinsgetcontext">builtins.getContext</a></li>
+        <li><a href="#builtinsgetenv-1">builtins.getEnv</a></li>
+        <li><a href="#builtinsgetflake">builtins.getFlake</a></li>
+        <li><a href="#builtinsgroupby">builtins.groupBy</a></li>
+        <li><a href="#builtinshasattr">builtins.hasAttr</a></li>
+        <li><a href="#builtinshascontext">builtins.hasContext</a></li>
+        <li><a href="#builtinshashfile">builtins.hashFile</a></li>
+        <li><a href="#builtinshashstring">builtins.hashString</a></li>
+        <li><a href="#builtinshead">builtins.head</a></li>
+        <li><a href="#builtinsintersectattrs">builtins.intersectAttrs</a></li>
+        <li><a href="#builtinsisattrs">builtins.isAttrs</a></li>
+        <li><a href="#builtinsisbool">builtins.isBool</a></li>
+        <li><a href="#builtinsisfloat">builtins.isFloat</a></li>
+        <li><a href="#builtinsisfunction">builtins.isFunction</a></li>
+        <li><a href="#builtinsisint">builtins.isInt</a></li>
+        <li><a href="#builtinsislist">builtins.isList</a></li>
+        <li><a href="#builtinsispath">builtins.isPath</a></li>
+        <li><a href="#builtinsisstring">builtins.isString</a></li>
+        <li><a href="#builtinslangversion">builtins.langVersion</a></li>
+        <li><a href="#builtinslength">builtins.length</a></li>
+        <li><a href="#builtinslessthan">builtins.lessThan</a></li>
+        <li><a href="#builtinslisttoattrs">builtins.listToAttrs</a></li>
+        <li><a href="#builtinsmapattrs">builtins.mapAttrs</a></li>
+        <li><a href="#builtinsmatch">builtins.match</a></li>
+        <li><a href="#builtinsmul">builtins.mul</a></li>
+        <li><a href="#builtinsnixpath">builtins.nixPath</a></li>
+        <li><a href="#builtinsnixversion">builtins.nixVersion</a></li>
+        <li><a href="#builtinsparsedrvname">builtins.parseDrvName</a></li>
+        <li><a href="#builtinspartition">builtins.partition</a></li>
+        <li><a href="#builtinspath">builtins.path</a></li>
+        <li><a href="#builtinspathexists">builtins.pathExists</a></li>
+        <li><a href="#builtinsreaddir">builtins.readDir</a></li>
+        <li><a href="#builtinsreadfile">builtins.readFile</a></li>
+        <li><a href="#builtinsreplacestrings">builtins.replaceStrings</a></li>
+        <li><a href="#builtinssort">builtins.sort</a></li>
+        <li><a href="#builtinssplit">builtins.split</a></li>
+        <li><a href="#builtinssplitversion">builtins.splitVersion</a></li>
+        <li><a href="#builtinsstoredir">builtins.storeDir</a></li>
+        <li><a href="#builtinsstorepath">builtins.storePath</a></li>
+        <li><a href="#builtinsstringlength">builtins.stringLength</a></li>
+        <li><a href="#builtinssub">builtins.sub</a></li>
+        <li><a href="#builtinssubstring">builtins.substring</a></li>
+        <li><a href="#builtinstail">builtins.tail</a></li>
+        <li><a href="#builtinstofile-1">builtins.toFile</a></li>
+        <li><a href="#builtinstojson">builtins.toJSON</a></li>
+        <li><a href="#builtinstopath">builtins.toPath</a></li>
+        <li><a href="#builtinstoxml">builtins.toXML</a></li>
+        <li><a href="#builtinstraceverbose">builtins.traceVerbose</a></li>
+        <li><a href="#builtinstryeval">builtins.tryEval</a></li>
+        <li><a href="#builtinstypeof">builtins.typeOf</a></li>
+        <li><a href="#builtinsunsafediscardoutputdependency">builtins.unsafeDiscardOutputDependency</a></li>
+        <li><a href="#builtinsunsafediscardstringcontext">builtins.unsafeDiscardStringContext</a></li>
+        <li><a href="#builtinsunsafegetattrpos">builtins.unsafeGetAttrPos</a></li>
+        <li><a href="#builtinszipattrswith">builtins.zipAttrsWith</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown"><p>2022-12-01</p>
+<h1 id="nix-expression-language">
+  Nix Expression Language
+  <a class="anchor" href="#nix-expression-language">#</a>
+</h1>
+<p>Ich erkunde die Nix Expression Language.  Mein Startpunkt ist
+<a href="https://learnxinyminutes.com/docs/nix/">https://learnxinyminutes.com/docs/nix/</a>.  Sehr hilfreich ist auch
+die Dokumentation, welche über die Nix Repl verfügbar ist.</p>
+<h2 id="auswertung">
+  Auswertung
+  <a class="anchor" href="#auswertung">#</a>
+</h2>
+<p>Die auszuwertenden Ausdrücke schreibe ich in eine Datei
+<code>scratch.nix</code>.  Die Auswertung erfolgt so:</p>
+<pre tabindex="0"><code>$ nix-instantiate --eval scratch.nix
+</code></pre><p>Für mehr Komfort kann man <code>inotifywait</code> benutzen um die Auswertung
+jedesmal anzustoßen wenn die Datei <code>scratch.nix</code> gespeichert wird:</p>
+<pre tabindex="0"><code>$ while true
+    inotifywait -q -e modify scratch.nix
+    clear
+    nix-instantiate --eval scratch.nix
+    and echo &#34;.&#34;
+  end
+</code></pre><p>Das ist eine Kommandozeile für die <code>fish</code> Shell.  In <code>sh</code> usw. muss
+man das ein bisschen anders schreiben.  Die <code>fish</code> Shell ist sehr
+komfortabel: man kann das einfach so mehrzeilig aufschreiben;
+die Shell weiß, wann die Eingabetaste die Zeile umbrechen soll
+und wann sie die Auswertung anstoßen soll.</p>
+<p>Kurze Ausdrücke kann man auch direkt in der Nix Repl ausprobieren:</p>
+<pre tabindex="0"><code>$ nix repl
+Welcome to Nix 2.10.3. Type :? for help.
+
+nix-repl&gt; &#34;Das ist eine Zeichenkette&#34;
+&#34;Das ist eine Zeichenkette&#34;
+
+nix-repl&gt; 7 * 11 * 13
+1001
+</code></pre><p>Update: Am Ende habe ich die Methode mit der Scratch-Datei kaum
+verwendet und mich stattdessen fast ausschließlich auf die Nix
+Repl verlassen.  Die Nix Repl bietet integrierte Dokumentation und
+kann auch mit mehrzeiligen Eingaben gut umgehen.</p>
+<h2 id="einfache-sprachbestandteile">
+  Einfache Sprachbestandteile
+  <a class="anchor" href="#einfache-sprachbestandteile">#</a>
+</h2>
+<p>Im Schnelldurchlauf.</p>
+<h3 id="kommentare">
+  Kommentare
+  <a class="anchor" href="#kommentare">#</a>
+</h3>
+<pre tabindex="0"><code># Einzeilige Kommentare (wie in Python).
+
+/*
+    Mehrzeilige Kommentare (wie in C++).
+
+    Python-Einzeiler und C++-Mehrzeiler sind schon mal eine
+    seltsame Kombination.  Wir haben noch nicht richtig begonnen
+    und der Merkwürdigkeitsfaktor ist schon größer 1.
+*/
+</code></pre><h3 id="booleans">
+  Booleans
+  <a class="anchor" href="#booleans">#</a>
+</h3>
+<pre tabindex="0"><code>nix-repl&gt; true &amp;&amp; false
+false
+
+nix-repl&gt; true || false
+true
+</code></pre><h3 id="verzweigung">
+  Verzweigung
+  <a class="anchor" href="#verzweigung">#</a>
+</h3>
+<pre tabindex="0"><code>nix-repl&gt; if 3 &lt; 4 then &#34;a&#34; else &#34;b&#34;
+&#34;a&#34;
+</code></pre><h3 id="zahlen">
+  Zahlen
+  <a class="anchor" href="#zahlen">#</a>
+</h3>
+<p>Es scheint Integers und Floats zu geben.  Man kann sie beim Rechnen
+mit einander kombinieren.  Die arithmetischen Operatoren sind
+polymorph.  Der Interpreter scheint selbständig nach gewissen Regeln
+zu enscheiden, wann das Ergebnis Integer und wann es Float ist.
+Daraus ergeben sich die üblichen Fallstricke:</p>
+<pre tabindex="0"><code>nix-repl&gt; 7.0 / 2
+3.5
+
+nix-repl&gt; 7 / 2
+3
+</code></pre><p>Für den Einsatzzweck der Nix Expression Language ist das bestimmt
+kein Problem.</p>
+<h3 id="strings">
+  Strings
+  <a class="anchor" href="#strings">#</a>
+</h3>
+<pre tabindex="0"><code>nix-repl&gt; &#34;Das ist ein String&#34;
+&#34;Das ist ein String&#34;
+</code></pre><p>Strings können mehrzeilig sein:</p>
+<pre tabindex="0"><code>nix-repl&gt; &#34;asdf
+...       asdf
+...       asdf&#34;
+&#34;asdf\nasdf\nasdf&#34;
+</code></pre><p>Die sogenannten Indented Strings sind ebenfalls mehrzeilig.
+Bei ihnen wird die Einrückung nicht mit ausgewertet.  Das ist
+die kürzeste Folge von führenden Leerzeichen, in der alle nicht
+leeren Zeilen des Strings übereinstimmen.  Ob und wie dabei Tabs
+berücksichtigt werden, habe ich nicht ausprobiert.  Hier werden
+in jeder Zeile die vier führenden Leerzeichen entfernt:</p>
+<pre tabindex="0"><code>nix-repl&gt; &#39;&#39;    asdf
+...           asdf
+...           asdf&#39;&#39;
+&#34;asdf\nasdf\nasdf&#34;
+</code></pre><p>Mit leeren Zeilen sind hier auch Zeilen gemeint, die nur aus
+Leerraum bestehen.  Leerzeilen am Rand des Strings werden verworfen.</p>
+<p>Verkettung von Strings mit <code>+</code>:</p>
+<pre tabindex="0"><code>nix-repl&gt; &#34;ab&#34; + &#34;cd&#34;
+&#34;abcd&#34;
+</code></pre><p>Auswertung in Strings:</p>
+<pre tabindex="0"><code>nix-repl&gt; &#34;Home is ${builtins.getEnv &#34;HOME&#34;}.&#34;
+&#34;Home is /home/aramis.&#34;
+</code></pre><p>Der Name <code>builtins</code> verweist auf eine Standardbibliothek (genauer:
+ein Set) von Funktionen und Prozeduren.  Das <code>builtins</code> Set ist
+immer verfügbar wenn der Nix Interpreter startet.  Die Prozedur
+<code>builtins.getEnv</code> liefert den Wert von Umgebungsvariablen.</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.getEnv &#34;HOME&#34;
+&#34;/home/aramis&#34;
+</code></pre><h3 id="pfade">
+  Pfade
+  <a class="anchor" href="#pfade">#</a>
+</h3>
+<p>Für Pfade gibt es einen eigenen Basisdatentyp.  Man notiert Pfade
+einfach so wie man sie auch sonst notieren würde:</p>
+<pre tabindex="0"><code>nix-repl&gt; /home/aramis
+/home/aramis
+</code></pre><p>Das hat aber Einschränkungen.  Zum Beispiel sind abschließende
+Schrägstriche aus irgendwelchen Gründen nicht gestattet:</p>
+<pre tabindex="0"><code>nix-repl&gt; /home/aramis/
+error: path has a trailing slash
+
+nix-repl&gt; /home/aramis/.
+/home/aramis
+</code></pre><p>Pfade ganz ohne Schrägstriche wie z.B. <code>.</code> werden auch nicht
+erkannt:</p>
+<pre tabindex="0"><code>nix-repl&gt; .
+error: syntax error, unexpected &#39;.&#39;
+
+nix-repl&gt; ./
+error: path has a trailing slash
+
+nix-repl&gt; ./.
+/home/aramis
+</code></pre><p>Relative Pfade werden in absolute Pfade aufgelöst relativ zu dem
+Verzeichnis, in welchem sich die Datei befindet, die ausgewertet
+wird:</p>
+<pre tabindex="0"><code>nix-repl&gt; ./.
+/home/aramis
+</code></pre><p>Pfade werden kanonisiert:</p>
+<pre tabindex="0"><code>nix-repl&gt; /home/aramis/.
+/home/aramis
+</code></pre><p>Daraus, dass der Parser auch relative Pfade als Pfade erkennt,
+ergibt sich, dass der Schrägstrich, wenn er als Divisionszeichen
+gelesen werden soll, von Leerraum umgeben sein muss</p>
+<pre tabindex="0"><code>nix-repl&gt; 0/0
+/home/aramis/0/0
+
+nix-repl&gt; 0 / 0
+error: division by zero
+</code></pre><h3 id="imports">
+  Imports
+  <a class="anchor" href="#imports">#</a>
+</h3>
+<p>Jedes Nix Skript enthält genau einen Top-Level-Ausdruck ohne freie
+Variable, der also vollständig ausgewertet werden kann.  Wenn ein
+Skript importiert wird, entspricht der Wert des Import-Ausdrucks
+dem Wert des importierten Skripts:</p>
+<pre tabindex="0"><code>$ echo &#34;1 + 2&#34; &gt; foo.nix
+$ nix repl
+Welcome to Nix 2.10.3. Type :? for help.
+
+nix-repl&gt; import ./foo.nix
+3
+</code></pre><p>Das <code>import</code> Schlüsselwort kann auch Strings verarbeiten:</p>
+<pre tabindex="0"><code>nix-repl&gt; import &#34;/home/aramis/foo.nix&#34;
+3
+</code></pre><p>Aber das scheint nur zu funktionieren wenn der String einen absoluten
+Pfad enthält:</p>
+<pre tabindex="0"><code>nix-repl&gt; import &#34;foo.nix&#34;
+error: string &#39;foo.nix&#39; doesn&#39;t represent an absolute path
+
+nix-repl&gt; import &#34;./foo.nix&#34;
+error: string &#39;./foo.nix&#39; doesn&#39;t represent an absolute path
+</code></pre><h3 id="let-in-ausdrücke">
+  Let-In-Ausdrücke
+  <a class="anchor" href="#let-in-ausdr%c3%bccke">#</a>
+</h3>
+<p>Dafür gibt es eine <code>let ... ; in ...</code> Syntax:</p>
+<pre tabindex="0"><code>nix-repl&gt; let x = &#34;a&#34; ; in x + x + x
+&#34;aaa&#34;
+</code></pre><p>Die Zuweisungen können sich auf einander beziehen, unabhängig
+von ihrer Reihenfolge:</p>
+<pre tabindex="0"><code>nix-repl&gt; let y = x + &#34;b&#34; ; x = &#34;a&#34; ; in y + &#34;c&#34;
+&#34;abc&#34;
+</code></pre><p>Innere Zuweisungen überschatten weiter außen liegende Zuweisungen:</p>
+<pre tabindex="0"><code>nix-repl&gt; let a = 1 ; in let a = 2 ; in a
+2
+</code></pre><h3 id="funktionen">
+  Funktionen
+  <a class="anchor" href="#funktionen">#</a>
+</h3>
+<p>Das ist erstaunlich rudimentär gelöst.  Nix kennt eigentlich nur
+einfache Lambdas:</p>
+<pre tabindex="0"><code>nix-repl&gt; (n : n + 1) 5
+6
+</code></pre><p>Lambdas mit mehr als einem Parameter ergeben sich aus der Syntax
+auf natürliche Weise:</p>
+<pre tabindex="0"><code>nix-repl&gt; (a : b : a + b) 5 6
+11
+</code></pre><p>Wenn man Namen für Funktionen vergeben möchte, kann man auf die
+<code>let ... ; in ...</code> Syntax zurückgreifen:</p>
+<pre tabindex="0"><code>nix-repl&gt; let plus = (a : b : a + b ) ; in plus 5 6
+11
+</code></pre><h3 id="listen">
+  Listen
+  <a class="anchor" href="#listen">#</a>
+</h3>
+<p>Listen sind von eckigen Klammern begrenzt.  Die Elemente sind durch
+Lerraum getrennt.</p>
+<pre tabindex="0"><code>nix-repl&gt;[ 1 2 3 ]
+[ 1 2 3 ]
+</code></pre><p>Es gibt viele Built-Ins für Listen:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.length [ 1 2 3 ]
+3
+
+nix-repl&gt; builtins.concatLists [ [ 1 2 3 ] [ 4 5 6 ] ]
+[ 1 2 3 4 5 6 ]
+
+nix-repl&gt; builtins.head [ 1 2 3 ]
+1
+
+nix-repl&gt; builtins.filter (n : n &lt; 3) [ 1 2 3 ]
+[ 1 2 ]
+</code></pre><h3 id="sets-mengen">
+  Sets (Mengen)
+  <a class="anchor" href="#sets-mengen">#</a>
+</h3>
+<p>In Nix Sets hat jedes Element einen String als Schlüssel also
+einen Namen.  Demnach sind Nix Sets keine bloßen Mengen sondern
+eher Records bzw. Maps.</p>
+<pre tabindex="0"><code>nix-repl&gt; { a = 1 ; b = 2 ; }.a
+1
+
+nix-repl&gt; let s = { a = 1 ; b = 2 ; } ; in s.a
+1
+</code></pre><p>Der <code>?</code> Operator prüft die Existenz eines Schlüssels:</p>
+<pre tabindex="0"><code>nix-repl&gt; { a = 1 ; b = 2 ; } ? a
+true
+</code></pre><p>Der <code>//</code> Operator vereinigt zwei Sets:</p>
+<pre tabindex="0"><code>nix-repl&gt; { a = 1 ; } // { b = 2 ; }
+{ a = 1; b = 2; }
+</code></pre><p>Wenn dabei Schlüssel kollidieren, hat das rechte Set Vorrang:</p>
+<pre tabindex="0"><code>nix-repl&gt; { a = 1 ; } // { a = 2 ; }
+{ a = 2; }
+</code></pre><p>Mit dem <code>rec</code> Schlüsselwort können rekursive Sets deklariert
+werden.  Darin können sich Werte auf andere Werte des selben
+Sets beziehen:</p>
+<pre tabindex="0"><code>nix-repl&gt; rec { a = 1 ; b = a ; }
+{ a = 1; b = 1; }
+
+nix-repl&gt; rec { a = b ; b = a ; }
+error: infinite recursion encountered
+</code></pre><p>Für verschachtelte Sets gibt es eine Kurznotation:</p>
+<pre tabindex="0"><code>nix-repl&gt; { a.b = 2 ; a.c = 3 ; }
+{ a = { ... }; }
+</code></pre><p>Das entspricht:</p>
+<pre tabindex="0"><code>nix-repl&gt; { a = { b = 2 ; c = 3 ; } ; }
+{ a = { ... }; }
+</code></pre><p>Man kann die Kurznotation mit der ausführlicheren mischen:</p>
+<pre tabindex="0"><code>nix-repl&gt; { a = { b = 2 ; } ; a.c = 3 ; }
+{ a = { ... }; }
+</code></pre><p>Ich finde, das sieht widersprüchlich aus.</p>
+<h3 id="das-with-schlüsselwort">
+  Das <code>with</code> Schlüsselwort
+  <a class="anchor" href="#das-with-schl%c3%bcsselwort">#</a>
+</h3>
+<p>Das <code>with</code> Schlüsselwort nimmt ein Set und einen Ausdruck.  In dem
+Ausdruck gelten die Schlüssel-Wert-Paare des Sets als Bindungen:</p>
+<pre tabindex="0"><code>nix-repl&gt; with { a = 1 ; b = 2 ; } ; a + b
+3
+</code></pre><p>Das ist also wie die <code>let ... ; in ...</code> Syntax:</p>
+<pre tabindex="0"><code>nix-repl&gt; let a = 1 ; b = 2 ; in a + b
+3
+</code></pre><p>Der Unterschied ist, dass bei <code>with</code> die gesamte Menge von Bindungen
+in einem (Set-)Ausdruck zusammengefasst ist.  Dadurch kann man sich
+die Bindungen sozusagen als ein ganzes Bündel aus dem Kontext holen.
+Man sieht das häufig in Nix-Expressions bspw. um die Built-Ins
+unqualifiziert verfügbar zu machen:</p>
+<pre tabindex="0"><code>nix-repl builtins.length [ 1 2 3 ]
+3
+
+nix-repl&gt; with builtins ; length [ 1 2 3 ]
+3
+</code></pre><p>Das ist sinnvoll wenn man z.B. viele Built-Ins in einem Ausdruck
+verwenden möchte und sie nicht jedesmal mit <code>builtins.</code>
+qualifizieren möchte.</p>
+<p>Ohne <code>with</code>:</p>
+<pre tabindex="0"><code>nix-repl&gt; [ ( builtins.length [ 1 2 3 ] )
+...         ( builtins.head [ 1 2 3 ] )
+...         ( builtins.elem 2 [ 1 2 3 ] )
+...       ]
+[ 3 1 true ]
+</code></pre><p>Mit <code>with</code>:</p>
+<pre tabindex="0"><code>nix-repl&gt; with builtins ;
+...       [ ( length [ 1 2 3 ] )
+...         ( head [ 1 2 3 ] )
+...         ( elem 2 [ 1 2 3 ] )
+...       ]
+[ 3 1 true ]
+</code></pre><p>Wenn man also qualifiziert importieren möchte, ganz grob ungefähr
+so wie man es in Haskell machen würde, könnte das so aussehen:</p>
+<pre tabindex="0"><code>$ echo &#34;{ plus = a : b : a + b ; }&#34; &gt; foo.nix
+$ nix repl
+Welcome to Nix 2.10.3. Type :? for help.
+
+nix-repl&gt; let foo = import ./foo.nix ; in with foo ; foo.plus 5 6
+11
+</code></pre><p>Das würde einem unqualifizierten Import entsprechen:</p>
+<pre tabindex="0"><code>nix-repl&gt; with import ./foo.nix ; plus 5 6
+11
+</code></pre><p>Anstatt wie oben den Import in einem Let-Ausdruck an den Namen <code>foo</code>
+zu binden, kann man diesen Namen in der importierten Datei festlegen.
+Dann spart man sich den Let-Ausdruck:</p>
+<pre tabindex="0"><code>$ echo &#34;{ foo = { plus = a : b : a + b ; } ; }&#34; &gt; foo.nix
+$ nix repl
+Welcome to Nix 2.10.3. Type :? for help.
+
+nix-repl&gt; with import ./foo.nix ; foo.plus 5 6
+11
+</code></pre><p>Die Variante hat den großen Nachteil, dass die Festlegung des
+<em>Qualifiers</em> <code>foo</code> in der importierenden Datei nicht explizit ist.</p>
+<p>Mit <code>with</code> lässt sich jeweils nur ein Set von Bindungen angeben
+aber, ähnlich wie bie den Lambdas, ergibt sich auch hier aus der
+Syntax eine natürliche Erweiterung auf mehrere Sets:</p>
+<pre tabindex="0"><code>nix-repl&gt; with builtins ;
+...       with { myList = [ 1 2 3 ] ; } ;
+...       length myList
+3
+</code></pre><h3 id="set-patterns">
+  Set Patterns
+  <a class="anchor" href="#set-patterns">#</a>
+</h3>
+<p>Funktionen unterstützen per se keine benannten Parameter.
+Lambdas können aber selbstverständlich auch auf Sets operieren:</p>
+<pre tabindex="0"><code>nix-repl&gt; (x : x.a + x.b) { a = 5 ; b = 6 ; }
+11
+</code></pre><p>Mit sogenannten Set Patterns kann man letztlich doch benannte
+Funktionsparameter aufschreiben:</p>
+<pre tabindex="0"><code>nix-repl&gt; ({a,b} : a + b) { a = 5 ; b = 6 ; }
+11
+</code></pre><p>Dabei ist <code>{a,b}</code> ein sogenanntes Set Pattern.</p>
+<p>Achtung: Wenn das Argument ein Set ist, welches zusätzliche
+Werte enthält, die im Set Pattern nicht angegeben sind, ist das
+ein Fehler:</p>
+<pre tabindex="0"><code>nix-repl&gt; ({a,b} : a + b) { a = 5 ; b = 6 ; c = 7 ; }
+error: anonymous function at (string):1:2 called with unexpected argument &#39;c&#39;
+</code></pre><p>Man kann den Fall aber im Set Pattern durch Auslassungspunkte
+ausdrücklich zulassen:</p>
+<pre tabindex="0"><code>nix-repl&gt; ({a,b,...} : a + b) { a = 5 ; b = 6 ; c = 7 ; }
+11
+</code></pre><h3 id="fehler">
+  Fehler
+  <a class="anchor" href="#fehler">#</a>
+</h3>
+<p>Das <code>throw</code> Schlüsselwort bricht die Auswertung ab und gibt eine
+Fehlermeldung aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; 1 + 2 + throw &#34;drei&#34;
+error: drei
+</code></pre><p>Anscheinend werden Fehler innerhalb von Listen wie normale Elemente
+behandelt.  Die Auswertung wird nicht abgebrochen:</p>
+<pre tabindex="0"><code>nix-repl&gt; [ 1 (throw &#34;zwei&#34;) 3 ]
+[ 1 «error: error: zwei» 3 ]
+</code></pre><p>Das gleiche Verhalten tritt innerhalb von Sets auf:</p>
+<pre tabindex="0"><code>nix-repl&gt; { eins = 1 ; zwei = throw &#34;zwei&#34; ; drei = 3 ; }
+{ drei = 3; eins = 1; zwei = «error: error: zwei»; }
+</code></pre><p>Neben <code>throw</code> gibt es auch noch das Schlüsselwort <code>abort</code>, welches
+ebenfalls die Auswertung abbricht und eine Fehlermeldung ausgibt:</p>
+<pre tabindex="0"><code>nix-repl&gt; 1 + 2 + abort &#34;drei&#34;
+error: evaluation aborted with the following error message: &#39;drei&#39;
+</code></pre><p>Im Unterschied zu <code>throw</code> führt <code>abort</code> auch innerhalb von Listen
+und Sets zum Abbruch der Auswertung:</p>
+<pre tabindex="0"><code>nix-repl&gt; [ 1 (abort &#34;zwei&#34;) 3 ]
+error: evaluation aborted with the following error message: &#39;zwei&#39;
+
+nix-repl&gt; { eins = 1 ; zwei = abort &#34;zwei&#34; ; drei = 3 ; }
+error: evaluation aborted with the following error message: &#39;zwei&#39;
+</code></pre><p>Der Unterschied zwischen <code>throw</code> und <code>abort</code> ist nützlich.
+In <code>nix-env -qa</code> und anderen Shell-Anweisungen, die Listen oder Sets
+von Nix Derivationen verarbeiten, wird <code>throw</code> verwendet, sofern
+bei einem Fehler in einer Derivation trotzdem alle nachfolgenden
+Derivationen verarbeitet werden sollen.  Natürlich gibt es auch
+Fälle, in denen ein Fehler zum Abbruch der ganzen Auswertung
+führen soll.  In solchen Fällen verwendet man <code>abort</code>.</p>
+<p>Mit <code>builtins.tryEval</code> können Fehler aufgefangen werden, die mit
+<code>throw</code> ausgelöst worden sind:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.tryEval (1 + 2 + 3)
+{ success = true; value = 6; }
+
+nix-repl&gt; builtins.tryEval (1 + 2 + throw &#34;drei&#34;)
+{ success = false; value = false; }
+</code></pre><p>Mit <code>abort</code> ausgelöste Fehler kann <code>builtins.tryEval</code> nicht
+auffangen:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.tryEval (1 + 2 + abort &#34;drei&#34;)
+error: evaluation aborted with the following error message: &#39;drei&#39;
+</code></pre><p>Das <code>assert</code> Schlüsselwort erwartet zwei Ausdrücke, getrennt
+durch ein Semikolon:</p>
+<pre tabindex="0"><code>assert &lt;erster Ausdruck&gt; ; &lt;zweiter Ausdruck&gt;
+</code></pre><p>Der erste Ausdruck muss boolsch sein.  Der zweite Ausdruck kann
+beliebig sein.  Wenn der erste Ausdruck zu <code>true</code> auswertet, wertet
+der gesamte <code>assert</code> Ausdruck zum zweiten Ausdruck aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; assert true ; &#34;1199Panigale&#34;
+&#34;1199Panigale&#34;
+
+nix-repl&gt; assert 3 &lt; 4 ; &#34;1199&#34; + &#34;Panigale&#34;
+&#34;1199Panigale&#34;
+</code></pre><p>Wenn der erste Ausdruck zu <code>false</code> auswertet, löst der <code>assert</code>
+Ausdruck einen Fehler aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; assert false ; &#34;1199Panigale&#34;
+error: assertion &#39;false&#39; failed
+
+nix-repl&gt; assert 4 &lt; 3 ; &#34;1199&#34; + &#34;Panigale&#34;
+error: assertion &#39;(__lessThan 4 3)&#39; failed
+</code></pre><p>Fehler, die von <code>assert</code> ausgelöst worden sind, können mit
+<code>builtins.tryEval</code> aufgefangen werden:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.tryEval (assert true ; &#34;1199Panigale&#34;)
+{ success = true; value = &#34;1199Panigale&#34;; }
+
+nix-repl&gt; builtins.tryEval (assert false ; &#34;1199Panigale&#34;)
+{ success = false; value = false; }
+</code></pre><h2 id="impurity">
+  Impurity
+  <a class="anchor" href="#impurity">#</a>
+</h2>
+<p>Die Nix Expression Language ist keine pure funktionale Sprache.
+Sie folgt dem Anspruch, möglichst pur zu arbeiten, um die
+Reproduzierbarkeit von Builds sicherzustellen.  Es gibt aber ein
+paar Ausnahmen.</p>
+<p>Ich will kein Haskell Snob sein, bin aber geneigt, anzumerken,
+dass eine Programmiersprache entweder <em>purely functional</em>
+ist oder nicht, also ganz oder gar nicht.  Es gibt dazwischen
+keinen Kompromiss, bzw. der Kompromiss wäre immer <em>impure</em>.
+Schließlich ist eine mathematische Relation entweder eine Abbildung
+oder eben nicht.  Andererseits kann man sehr wohl auch in einer
+Programmiersprache, welche diese Eigenschaft nicht hat, <em>purely
+functional</em> programmieren; es obliegt dann nur dem Menschen,
+sicherzustellen dass der Code ausschließlich statische Werte
+aus dem Kontext liest und klar unterscheidet zwischen Prozeduren,
+die Nebeneffekte hervorrufen, und solchen die das nicht tun.</p>
+<p>Es folgen ein paar Ursachen dafür, dass die Nix Expression Language
+nicht <em>pure</em> ist.  (Es gibt noch weitere.)</p>
+<h3 id="builtinsgetenv">
+  builtins.getEnv
+  <a class="anchor" href="#builtinsgetenv">#</a>
+</h3>
+<p>Die Prozedur <code>builtins.getEnv</code> liest Umgebungsvariable:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.getEnv &#34;HOME&#34;
+&#34;/home/aramis&#34;
+</code></pre><p>Das ist unter allen Prozeduren, die hier aufgeführt sind, der eine,
+von dem ich mir vorstellen könnte, dass er in die tolle Idee vom
+<em>Purely Functional Package Management</em> eine große Lücke reißt.</p>
+<h3 id="builtinstrace">
+  builtins.trace
+  <a class="anchor" href="#builtinstrace">#</a>
+</h3>
+<p>Die Prozedur <code>builtins.trace</code> nimmt zwei Werte entgegen, sendet
+den ersten Wert zur Standardfehlerausgabe und wertet selbst zum
+zweiten Wert aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.trace &#34;err&#34; &#34;val&#34;
+trace: err
+&#34;val&#34;
+</code></pre><p>Auf die Standardfehlerausgabe zu schreiben, ist strenggenommen
+ein Nebeneffekt, aber auch Sprachen, die sich rühmen, <em>purely
+functional</em> zu sein, brauchen und haben eine <code>trace</code> Prozedur.</p>
+<h3 id="builtinstofile">
+  builtins.toFile
+  <a class="anchor" href="#builtinstofile">#</a>
+</h3>
+<p>Die Prozedur <code>builtins.toFile</code> schreibt Dateien in den Nix Store:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.toFile &#34;foo.txt&#34; &#34;hello!&#34;
+&#34;/nix/store/ayh05aay2anx135prqp0cy34h891247x-foo.txt&#34;
+
+nix-repl&gt; :q
+
+$ cat /nix/store/ayh05aay2anx135prqp0cy34h891247x-foo.txt
+hello!
+</code></pre><p>In eine Datei zu schreiben ist natürlich ein Nebeneffekt.  Zumindest
+wird hier sichergestellt, dass eine Datei, die einmal im Nix Store
+erzeugt worden ist, ihren Inhalt nicht mehr unbemerkt ändern kann,
+denn ein Hashwert ihres Inhalts wird dem Dateinamen als Präfix
+vorangestellt.  Was Nix anschließend mit diesen Hashwerten macht
+&ndash; insbesondere ob Nix wirklich jede Datei vor jeder Verarbeitung
+erneut hasht und mit dem Dateinamen abgleicht &ndash; weiß ich nicht,
+aber das finde ich bestimmt noch heraus.</p>
+<p>An der Stelle bin ich durch mit
+<a href="https://learnxinyminutes.com/docs/nix/">https://learnxinyminutes.com/docs/nix/</a>.  Aktuell ist mein Plan, mir
+als nächstes die Namen anzuschauen, die in der Nix Repl aufgelistet
+werden wenn man direkt nach dem Start die Tab-Taste drückt.
+Dann schaue ich mir den Inhalt des <code>builtins</code> Sets genauer an.</p>
+<h2 id="top-level-namen">
+  Top-Level Namen
+  <a class="anchor" href="#top-level-namen">#</a>
+</h2>
+<p>Es gibt ein paar Namen (für Funktionen, Prozeduren, &hellip;), die nach
+dem Start der Nix Repl unqualifiziert im Top-Level zur Verfügung
+stehen:</p>
+<pre tabindex="0"><code>abort baseNameOf break builtins derivation derivationStrict dirOf
+false fetchGit fetchMercurial fetchTarball fetchTree fromTOML
+import isNull map null placeholder removeAttrs scopedImport
+throw toString true
+</code></pre><p>Daneben gibt es noch eine Menge von Namen, die mit einem Unterstrich
+beginnen, wie z.B. <code>__typeOf</code>.  Das scheinen allesamt Aliase für
+die Namen im <code>builtins</code> Set zu sein.  Diese Namen lasse ich hier aus,
+weil ich vorhabe, später auf den Inhalt von <code>builtins</code> einzugehen.</p>
+<p>Die folgenden Namen wurden schon weiter oben erläutert:</p>
+<pre tabindex="0"><code>abort builtins false import throw true
+</code></pre><p>Jetzt schaue ich mir den Rest an.</p>
+<h3 id="map">
+  map
+  <a class="anchor" href="#map">#</a>
+</h3>
+<p>Damit kann man eine Funktion auf jedes Element in einer Liste
+anwenden:</p>
+<pre tabindex="0"><code>nix-repl&gt; map (n : 2 * n) [ 1 2 3 ]
+[ 2 4 6 ]
+</code></pre><p>Wer schon funktional programmiert hat, dürfte <code>map</code> kennen.</p>
+<h3 id="basenameof">
+  baseNameOf
+  <a class="anchor" href="#basenameof">#</a>
+</h3>
+<p>Liefert das letzte Segment in einem Pfad:</p>
+<pre tabindex="0"><code>nix-repl&gt; baseNameOf /home/aramis
+&#34;aramis&#34;
+
+nix-repl&gt; baseNameOf ./.
+&#34;aramis&#34;
+</code></pre><p>Das funktioniert auch mit Strings:</p>
+<pre tabindex="0"><code>nix-repl&gt; baseNameOf &#34;/home/aramis&#34;
+&#34;aramis&#34;
+
+nix-repl&gt; baseNameOf &#34;/home/aramis/&#34;
+&#34;aramis&#34;
+</code></pre><p>Pfade in einem String werden aber nicht kanonisiert:</p>
+<pre tabindex="0"><code>nix-repl&gt; baseNameOf &#34;../../..&#34;
+&#34;..&#34;
+</code></pre><h3 id="dirof">
+  dirOf
+  <a class="anchor" href="#dirof">#</a>
+</h3>
+<p>Liefert den Pfad ohne das letzte Segment:</p>
+<pre tabindex="0"><code>nix-repl&gt; dirOf /home/aramis
+/home
+
+nix-repl&gt; dirOf &#34;/home/aramis&#34;
+&#34;/home&#34;
+
+nix-repl&gt; dirOf &#34;/home/aramis/&#34;
+&#34;/home/aramis&#34;
+
+nix-repl&gt; dirOf &#34;../../..&#34;
+&#34;../..&#34;
+</code></pre><h3 id="null-isnull">
+  null, isNull
+  <a class="anchor" href="#null-isnull">#</a>
+</h3>
+<p>Offenbar gibt es einen <code>null</code> Wert.  Ich weiß nicht, welche Rolle
+<code>null</code> in der Nix Expression Language spielt.  Hoffentlich keine
+allzu große.  In anderen Sprachen repräsentiert der <code>null</code> Wert
+häufig die Abwesenheit eines &ldquo;echten&rdquo; Wertes.</p>
+<p>Der <code>null</code> Wert scheint seinen eigenen Datentyp zu haben.  Ich greife
+an der Stelle vor auf <code>builtins.typeOf</code>.  Damit kann man den Datentyp
+eines Ausdrucks  finden:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.typeOf 0
+&#34;int&#34;
+
+nix-repl&gt; builtins.typeOf 0.0
+&#34;float&#34;
+
+nix-repl&gt; builtins.typeOf false
+&#34;bool&#34;
+
+nix-repl&gt; builtins.typeOf &#34;&#34;
+&#34;string&#34;
+
+nix-repl&gt; builtins.typeOf []
+&#34;list&#34;
+
+nix-repl&gt; builtins.typeOf {}
+&#34;set&#34;
+
+nix-repl&gt; builtins.typeOf null
+&#34;null&#34;
+</code></pre><p>Die Funktion <code>isNull</code> ist markiert als <em>deprecated</em>.  Man soll
+stattdessen <code>... == null</code> verwenden:</p>
+<pre tabindex="0"><code>nix-repl&gt; isNull null
+true
+
+nix-repl&gt; isNull 0
+false
+
+nix-repl&gt; isNull &#34;&#34;
+false
+
+nix-repl&gt; null == null
+true
+
+nix-repl&gt; 0 == null
+false
+
+nix-repl&gt; &#34;&#34; == null
+false
+</code></pre><h3 id="tostring">
+  toString
+  <a class="anchor" href="#tostring">#</a>
+</h3>
+<p>Damit können Ausdrücke in eine Stringdarstellung überführt
+werden:</p>
+<pre tabindex="0"><code>nix-repl&gt; toString 123
+&#34;123&#34;
+
+nix-repl&gt; toString &#34;Das ist schon ein String&#34;
+&#34;Das ist schon ein String&#34;
+</code></pre><p>Pfade werden kanonisiert:</p>
+<pre tabindex="0"><code>nix-repl&gt; toString ./.
+&#34;/home/aramis&#34;
+</code></pre><p>Für andere Datentypen liefert <code>toString</code> Ergebnisse, die ich so
+nicht erwartet hätte:</p>
+<pre tabindex="0"><code>nix-repl&gt; toString 0.0
+&#34;0.000000&#34;
+
+nix-repl&gt; toString true
+&#34;1&#34;
+
+nix-repl&gt; toString false
+&#34;&#34;
+
+nix-repl&gt; toString []
+&#34;&#34;
+
+nix-repl&gt; toString [ 1 2 3 ]
+&#34;1 2 3&#34;
+
+nix-repl&gt; toString [ 1 2 3 [ 4 5 6 ] ]
+&#34;1 2 3 4 5 6&#34;
+
+nix-repl&gt; toString null
+&#34;&#34;
+</code></pre><p>Auf Sets kann <code>toString</code> nur operieren wenn darin ein spezieller
+Schlüssel <code>__toString</code> oder <code>outPath</code> vorhanden ist:</p>
+<pre tabindex="0"><code>nix-repl&gt; toString { a = 1 ; b = 2 ; c = 3 ; }
+error: cannot coerce a set to a string
+
+nix-repl&gt; toString { a = 1 ; b = 2 ; c = 3 ; outPath = &#34;asdf&#34; ; }
+&#34;asdf&#34;
+
+nix-repl&gt; toString
+...         { a = 1 ; b = 2 ; c = 3 ; __toString = self : self.a }
+&#34;1&#34;
+</code></pre><h3 id="break">
+  break
+  <a class="anchor" href="#break">#</a>
+</h3>
+<p>Die Prozedur <code>break</code> hat hier nichts mit While-Schleifen oder
+ähnlichem zu tun.  Man kann damit Breakpoints im Code setzen, an
+denen der Interpreter im Debug Modus die Auswertung pausiert und in
+die Repl wechselt.  Um den Interpreter im Debug Modus zu starten,
+muss das Flag <code>--debugger</code> mit übergeben werden.</p>
+<p>Da wir hier nicht imperativ sondern deklarativ bzw. funktional
+programmieren, kann <code>break</code> nicht als Anweisung im Code platziert
+werden ohne selbst zu irgendetwas auszuwerten.  Deswegen erwartet
+<code>break</code> ein Argument und wertet zu diesem Argument aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; break 1
+1
+</code></pre><h3 id="removeattrs">
+  removeAttrs
+  <a class="anchor" href="#removeattrs">#</a>
+</h3>
+<p>Die Funktion <code>removeAttrs</code> nimmt ein Set und eine Liste mit
+Schlüsseln entgegen.  Die aufgeführten Schlüssel werden aus
+dem Set entfernt.  Schlüssel, die in dem Set nicht vorkommen,
+werden ignoriert:</p>
+<pre tabindex="0"><code>nix-repl&gt; removeAttrs { x = 1 ; y = 2 ; z = 3 ; } [ &#34;a&#34; &#34;x&#34; &#34;z&#34; ]
+{ y = 2; }
+</code></pre><p>Ich glaube, diese Stelle markiert einen Übergang.  Ich habe
+zunächst versucht, die Nix Expression Language ganz allgemein als
+Programmiersprache zu betrachten, ohne darauf Rücksicht zu nehmen,
+wofür sie tatsächlich eingesetzt werden soll.  Ich denke, dass
+das ab hier immer weniger möglich sein wird.</p>
+<h3 id="fromtoml">
+  fromTOML
+  <a class="anchor" href="#fromtoml">#</a>
+</h3>
+<p>Ich bin mit TOML nicht besonders vertraut, aber ich glaube,
+es ist nicht viel mehr als eine Folge von zeilenweisen
+Schlüssel-Wert-Zuweisungen in der Form <code>key=value</code>.  Die Funktion
+<code>fromTOML</code> scheint TOML Markup in ein Nix Set zu überführen:</p>
+<pre tabindex="0"><code>nix-repl&gt; fromTOML &#34;a=1\nb=2&#34;
+{ a = 1; b = 2; }
+</code></pre><h3 id="scopedimport">
+  scopedImport
+  <a class="anchor" href="#scopedimport">#</a>
+</h3>
+<p>Das ist nirgendwo richtig dokumentiert und wird nicht einmal im
+Nix Manual erwähnt.  Es gibt eine Issue auf Github dazu:</p>
+<p><a href="https://github.com/NixOS/nix/issues/1450">https://github.com/NixOS/nix/issues/1450</a></p>
+<p>Ein paar Auszüge:</p>
+<ul>
+<li><em>&ldquo;scopedImport has nasty performance consequences since it disables
+the parser/evaluation cache&rdquo;</em></li>
+<li><em>&ldquo;It allows doing some pretty nasty/nifty things like overriding
+every primop (including import)&rdquo;</em></li>
+</ul>
+<p>Ok, also die Finger davon lassen.  Es hätte mich trotzdem ein
+bisschen interessiert, wie man das benutzt, aber nicht so sehr,
+dass ich an der Stelle weiterbuddeln möchte.</p>
+<h3 id="fetchgit-fetchmercurial-fetchtarball-fetchtree">
+  fetchGit, fetchMercurial, fetchTarball, fetchTree
+  <a class="anchor" href="#fetchgit-fetchmercurial-fetchtarball-fetchtree">#</a>
+</h3>
+<p>Mit den Fetch-Befehlen lassen sich Dateien herunterladen und in
+den Nix Store schreiben.  <code>fetchMercurial</code> und <code>fetchTree</code> sind
+undokumentiert, also schaue ich mir zunächst die anderen beiden an.</p>
+<p><code>fetchGit</code> holt einen Pfad aus einem Git Repository und schreibt ihn
+in den Nix Store.  In der Nix Repl erhält man mit <code>:doc fetchGit</code>
+reichlich Dokumentation dazu, wie das genau zu benutzen ist.
+Ich möchte das hier nicht alles wiedergeben.</p>
+<p><code>fetchTarball</code> lädt ein Tar-Archiv herunter und entpackt es in den
+Nix Sore.  Das Tar-Archiv kann (oder muss?) zusätzlich mit <code>gzip</code>,
+<code>bzip7</code> oder <code>xv</code> komprimiert sein.  Die Dokumentation in der Repl
+dazu ist auch recht ausführlich.</p>
+<p><code>fetchMercurial</code> ist in der Repl nicht dokumentiert.  Ich nehme an,
+es ist wie <code>fetchGit</code> aber für Mercurial Repositories.</p>
+<p><code>fetchTree</code> ist ebenfalls undokumentiert in der Repl.  Das Nix
+Manual erwähnt, dass <code>fetchTree</code> die Funktionalität der
+anderen Fetch-Befehle in sich vereint und somit beliebige Quellen
+herunterladen kann.  Möglicherweise ist das nur eine Fassade,
+die je nach Quelle das passende Backend wählt, ungefähr so wie
+<code>aunpack</code> das Entpacken von Archivdateien handhabt.</p>
+<h3 id="derivation-derivationstrict">
+  derivation, derivationStrict
+  <a class="anchor" href="#derivation-derivationstrict">#</a>
+</h3>
+<p>Beides hat in der Nix Repl keine Dokumentation.  Was ist eine
+Derivation?  Man kann das wörtlich mit Ableitung übersetzen.
+Im Kontext von Nix ist damit eine sogenannte <em>Build Action</em>
+gemeint.  Ich nehme an, das ist ein Rezept für den Bau eines
+Softwarepaketes und seine &ldquo;Installation&rdquo; im Nix Store.  Laut Handbuch
+ist <code>derivation</code> die wichtigste built-in Funktion: schließlich ist
+Nix genau dafür gedacht/gemacht, solche Derivationen zu beschreiben
+und auszuführen.</p>
+<p><code>derivation</code> verarbeitet ein Set, das genau beschreibt, was gebaut
+wird, und zwar mit den folgenden Schlüsseln (Attributen):</p>
+<ul>
+<li><code>system</code>
+<ul>
+<li>Nix Systemtyp, z.B. <code>&quot;i686-linux&quot;</code> oder <code>&quot;x86_64-darwin&quot;</code></li>
+<li>siehe <code>nix -vv --version</code></li>
+</ul>
+</li>
+<li><code>name</code>
+<ul>
+<li>der Name des Pakets</li>
+</ul>
+</li>
+<li><code>builder</code>
+<ul>
+<li>das Programm, welches zum Bauen verwendet wird</li>
+<li>kann eine Derivation oder eine lokale Datei sein (ein Script)</li>
+<li>Die Attribute der Derivation werden als Umgebungsvariable
+übergeben:
+<ul>
+<li>Strings und Zahlen werden unverändert übergeben.</li>
+<li>Pfade werden zunächst in den Nix Store kopiert und der
+Zielpfad landet in der Umgebungsvariable.</li>
+<li>Derivationen werden gebaut und der Pfad des Zielartefakts
+landet in der Umgebungsvariable.
+<ul>
+<li>Listen werden leerzeichensepariert übergeben.</li>
+<li><code>true</code> wird als <code>1</code> übergeben.</li>
+<li><code>false</code> und <code>null</code> werden als <code>&quot;&quot;</code> übergeben.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>args</code>
+<ul>
+<li>optionale Liste von CLI-Argumenten für das bauende Programm</li>
+</ul>
+</li>
+<li><code>outputs</code>
+<ul>
+<li>optionale Liste von Ausgabepfaden</li>
+<li>Normalerweise gibt es nur einen Outputpfad <code>out</code>, aber man
+kann diesen Schlüssel verwenden, um verschiedene Ausgabepfade
+zu deklarieren, bspw. <code>[ &quot;lib&quot; &quot;headers&quot; &quot;doc&quot; ]</code>, dann stehen
+dem bauenden Programm drei Pfade statt nur einem zur Verfügung,
+die separat garbage-collected werden können.</li>
+</ul>
+</li>
+</ul>
+<p>Damit habe ich eine erste, grobe Vorstlelung davon, wie Nix baut.</p>
+<p>Für <code>derivationStrict</code> habe ich nirgendwo Dokumentation gefunden.</p>
+<h3 id="placeholder">
+  placeholder
+  <a class="anchor" href="#placeholder">#</a>
+</h3>
+<p>Nimmt einen Ausgabepfad entgegen (<code>&quot;out&quot;</code>, <code>&quot;bin&quot;</code>, <code>&quot;dev&quot;</code>,
+&hellip;) und liefert einen Plazhalter, der beim Bauen durch den
+Ausgabepfad ersetzt wird.  Es scheint wirklich eine Funktion zu sein:</p>
+<pre tabindex="0"><code>nix-repl&gt; placeholder &#34;out&#34;
+&#34;/1rz4g4znpzjwh1xymhjpm42vipw92pr73vdgl6xs1hycac8kf2n9&#34;
+
+nix-repl&gt; placeholder &#34;out&#34;
+&#34;/1rz4g4znpzjwh1xymhjpm42vipw92pr73vdgl6xs1hycac8kf2n9&#34;
+
+nix-repl&gt; placeholder &#34;out&#34;
+&#34;/1rz4g4znpzjwh1xymhjpm42vipw92pr73vdgl6xs1hycac8kf2n9&#34;
+</code></pre><p>Keine Ahnung, wofür das gut ist.</p>
+<h2 id="built-ins">
+  Built-ins
+  <a class="anchor" href="#built-ins">#</a>
+</h2>
+<p>Im letzten Abschnitt habe ich mir die Namen angeschaut, die nach
+dem Start der Nix Repl unqualifiziert im Top-Level verfügbar sind.
+Unterhalb von <code>builtins</code> gibt es eine ganze Reihe weiterer Namen.
+Die schaue ich mir jetzt an.  Einige davon sind nicht neu, weil
+sie auch im Top-Level verfügbar sind.  Die lasse ich unerwähnt aus.</p>
+<h3 id="builtinsadd">
+  builtins.add
+  <a class="anchor" href="#builtinsadd">#</a>
+</h3>
+<p>Die Funktion hinter dem <code>+</code> Operator:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.add 3 4
+7
+</code></pre><h3 id="builtinsadderrorcontext">
+  builtins.addErrorContext
+  <a class="anchor" href="#builtinsadderrorcontext">#</a>
+</h3>
+<p>Dafür finde ich keine Dokumentation.</p>
+<h3 id="builtinsall">
+  builtins.all
+  <a class="anchor" href="#builtinsall">#</a>
+</h3>
+<p>Prüft ob ein Prädikat auf alle Elemente einer Liste zutrifft:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.all ( n : n &gt; 3 ) [ 1 2 3 ]
+false
+
+nix-repl&gt; builtins.all ( n : n &gt; 3 ) [ 4 5 6 ]
+true
+</code></pre><h3 id="builtinsany">
+  builtins.any
+  <a class="anchor" href="#builtinsany">#</a>
+</h3>
+<p>Prüft ob ein Prädikat auf mindestens ein Element einer Liste
+zutrifft:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.any ( n : n &lt; 3 ) [ 1 2 3 ]
+true
+
+nix-repl&gt; builtins.any ( n : n &lt; 3 ) [ 4 5 6 ]
+false
+</code></pre><h3 id="builtinsappendcontext">
+  builtins.appendContext
+  <a class="anchor" href="#builtinsappendcontext">#</a>
+</h3>
+<p>Dafür finde ich keine Dokumentation.</p>
+<h3 id="builtinsattrnames">
+  builtins.attrNames
+  <a class="anchor" href="#builtinsattrnames">#</a>
+</h3>
+<p>Liefert eine sortierte Liste der Schlüssel in einem Set:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.attrNames { a = 1 ; b = 2 ; c = 3 ; }
+[ &#34;a&#34; &#34;b&#34; &#34;c&#34; ]
+</code></pre><h3 id="builtinsattrvalues">
+  builtins.attrValues
+  <a class="anchor" href="#builtinsattrvalues">#</a>
+</h3>
+<p>Wie Sartres Autodidakt, gehe ich die Built-ins in alphabetischer
+Reihder sonderliche Autodidakt in Bouville, gehe ich die Built-ins in
+alphabetischer Reihenfolge durch.  Immerhin sind es bei mir nicht die
+Bücher einer ganzen Bibliothek, sondern nur ein paar Nix-Funktionen.
+Jetzt wäre <code>builtins.deepSeq</code></p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.attrValues { a = 3 ; b = 2 ; c = 1 ; }
+[ 3 2 1 ]
+</code></pre><h3 id="builtinsbitand">
+  builtins.bitAnd
+  <a class="anchor" href="#builtinsbitand">#</a>
+</h3>
+<p>Bitweise Konjunktion zweier Integers:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.bitAnd 123 456
+72
+</code></pre><p>Rechnen wir das spaßeshalber durch:</p>
+<pre tabindex="0"><code>123 = 64  + 32  + 16  + 8   + 2   + 1
+    = 2^6 + 2^5 + 2^4 + 2^3 + 2^1 + 2^0
+    = 1111011
+
+456 = 256 + 128 + 64  + 8
+    = 2^8 + 2^7 + 2^6 + 2^3
+    = 111001000
+
+  001111011
++ 111001000
+= 001001000 = 2^3 + 2^6 = 72
+</code></pre><h3 id="builtinsbitor">
+  builtins.bitOr
+  <a class="anchor" href="#builtinsbitor">#</a>
+</h3>
+<p>Bitweise Disjunktion zweier Integers:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.bitOr 123 456
+507
+</code></pre><h3 id="builtinsbitxor">
+  builtins.bitXor
+  <a class="anchor" href="#builtinsbitxor">#</a>
+</h3>
+<p>Bitweise Kontravalenz (&ldquo;exklusive Disjunktion&rdquo;) zweiter Integers:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.bitXor 123 456
+435
+</code></pre><h3 id="builtinsbuiltins">
+  builtins.builtins
+  <a class="anchor" href="#builtinsbuiltins">#</a>
+</h3>
+<p>Offenbar enthält das <code>builtins</code> Set eine Referenz auf sich selbst.</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.builtins == builtins
+true
+
+nix-repl&gt; builtins.builtins.builtins.builtins == builtins
+true
+</code></pre><p>Schrullig, aber was soll&rsquo;s.</p>
+<h3 id="builtinscatattrs">
+  builtins.catAttrs
+  <a class="anchor" href="#builtinscatattrs">#</a>
+</h3>
+<p>Das nimmt einen Schlüssel (String) und sammelt aus einer Liste
+von Sets die Werte für diesen Schlüssel ein:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.catAttrs &#34;a&#34;
+...         [ { a = 1 ; } { b = 2 ; } { a = 3 ; } ]
+[ 1 3 ]
+</code></pre><h3 id="builtinsceil">
+  builtins.ceil
+  <a class="anchor" href="#builtinsceil">#</a>
+</h3>
+<p>Liefert für eine Zahl <code>x</code> die nächste Ganzzahl <code>n</code> sodass <code>x &lt;= n</code>:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.ceil 1.5
+2
+
+nix-repl&gt; builtins.ceil 2
+2
+</code></pre><h3 id="builtinscompareversions">
+  builtins.compareVersions
+  <a class="anchor" href="#builtinscompareversions">#</a>
+</h3>
+<p>Vergleicht zwei Strings anhand der typischen Ordnung von
+Versionsnummern.  Das Ergebnis ist <code>-1</code>, <code>0</code> oder <code>1</code>, je nachdem
+ob das erste Argument gegenüber dem zweiten kleiner, gleich oder
+größer ist.</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.compareVersions &#34;0.0.0&#34; &#34;0.0.1&#34;
+-1
+
+nix-repl&gt; builtins.compareVersions &#34;0.0.1&#34; &#34;0.0.1&#34;
+0
+
+nix-repl&gt; builtins.compareVersions &#34;0.0.2&#34; &#34;0.0.1&#34;
+1
+</code></pre><h3 id="builtinsconcatlists">
+  builtins.concatLists
+  <a class="anchor" href="#builtinsconcatlists">#</a>
+</h3>
+<p>Konkateniert Listen:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.concatLists [ [ 1 2 3 ] [ 4 5 6 ] ]
+[ 1 2 3 4 5 6 ]
+</code></pre><h3 id="builtinsconcatmap">
+  builtins.concatMap
+  <a class="anchor" href="#builtinsconcatmap">#</a>
+</h3>
+<p>Das ist eine Verkettung von <code>map</code> und <code>concatLists</code>.  Das heißt,
+für eine Funktion <code>f</code> und eine Liste <code>ls</code> sind die folgenden beiden
+Ausdrücke äquivalent:</p>
+<p><code>builtins.concatLists (map f ls)</code></p>
+<p><code>builtins.concatMap f ls</code></p>
+<p>Beispielsweise:</p>
+<pre tabindex="0"><code>nix-repl&gt; with
+...         { f  = map ( n : 2 * n ) ;
+...           ls = [ [ 1 2 3 ] [ 4 5 6 ] ] ;
+...         } ;
+...         builtins.concatLists ( map f ls )
+[ 2 4 6 8 10 12 ]
+
+nix-repl&gt; with
+...         { f  = map ( n : 2 * n ) ;
+...           ls = [ [ 1 2 3 ] [ 4 5 6 ] ] ;
+...         } ;
+...         builtins.concatMap f ls
+[ 2 4 6 8 10 12 ]
+</code></pre><h3 id="builtinsconcatstringssep">
+  builtins.concatStringsSep
+  <a class="anchor" href="#builtinsconcatstringssep">#</a>
+</h3>
+<p>Konkateniert Strings mit einem Trennzeichen:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.concatStringsSep &#34;/&#34; [ &#34;usr&#34; &#34;local&#34; &#34;bin&#34; ]
+&#34;usr/local/bin&#34;
+</code></pre><h3 id="builtinscurrentsystem">
+  builtins.currentSystem
+  <a class="anchor" href="#builtinscurrentsystem">#</a>
+</h3>
+<p>Liefert einen Namen für das System, auf dem Nix gerade läuft:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.currentSystem
+&#34;x86_64-linux&#34;
+</code></pre><h3 id="builtinscurrenttime">
+  builtins.currentTime
+  <a class="anchor" href="#builtinscurrenttime">#</a>
+</h3>
+<p>Liefert die aktuelle Posix-Zeit:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.currentTime
+1661168166
+</code></pre><h3 id="builtinsseq">
+  builtins.seq
+  <a class="anchor" href="#builtinsseq">#</a>
+</h3>
+<p>Wie der sonderliche Autodidakt in Bouville, gehe ich die Built-ins
+in alphabetischer Reihenfolge durch.  Immerhin sind es bei mir
+nicht die Bücher einer ganzen Bibliothek, sondern nur ein paar
+Nix-Funktionen.  Jetzt wäre <code>builtins.deepSeq</code> an der Reihe,
+aber das wäre Quatsch ohne vorher <code>builtins.seq</code> zu betrachten.
+Deswegen ziehe ich das vor.</p>
+<p>Nix wertet verzögert aus (so wie Haskell).  Das bedeutet, dass
+Ausdrücke erst dann ausgewertet werden wenn sie tatsächlich
+gebraucht werden und auch nur so weit wie es tatsächlich nötig ist.
+Ich möchte das kurz an einem Beispiel demonstrieren.  Das geht
+vielleicht am besten mit einer Funktion, die viel Rechenzeit frisst.
+Ad hoc fällt mir die Fibonacci-Funktion ein.  Das hier wäre eine
+einfache Implementierung dafür in Haskell:</p>
+<pre tabindex="0"><code>-- Haskell:
+
+fib n =
+    if n &lt; 1 then 0
+    else if n &lt; 2 then 1
+    else fib ( n - 1 ) + fib ( n - 2 )
+</code></pre><p>Das ist so rechenaufwändig, dass ich mit meinem Rechner auf <code>fib 32</code> schon ein paar Sekunden warten muss, also ein guter Kandidat.
+Wir können das auch als Lambda-Ausdruck schreiben.  Dann wandert
+der Parameter <code>n</code> nach rechts hinter das <code>=</code> Zeichen:</p>
+<pre tabindex="0"><code>-- Haskell:
+
+fib = \ n -&gt;
+    if n &lt; 1 then 0
+    else if n &lt; 2 then 1
+    else fib ( n - 1 ) + fib ( n - 2 )
+</code></pre><p>In Nix müssen Funktionen als Lambda-Ausdrücke notiert werden.
+Die konventionelle Notation mit dem Parameter auf der linken Seite
+wird nicht unterstützt.  Mein erster Versuch, diese Funktion in
+Nix zu schreiben, sah so aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; fib = n :
+...         if n &lt; 1 then 0
+...         else if n &lt; 2 then 1
+...         else fib ( n - 1 ) + fib ( n - 2 )
+error: undefined variable &#39;fib&#39;
+</code></pre><p>Nix unterstützt keine rekursiven Funktionen, jedenfalls nicht auf
+diese Weise.  Damit das klappt, müssen wir die Funktion in ein
+rekursives Set stecken:</p>
+<pre tabindex="0"><code>nix-repl&gt; funs = rec
+...         { fib = n :
+...             if n &lt; 1 then 0
+...             else if n &lt; 2 then 1
+...             else fib ( n - 1 ) + fib ( n - 2 ) ;
+...         }
+
+nix-repl&gt; funs.fib 32
+2178309
+</code></pre><p>Nix rechnet <code>funs.fib 32</code> schneller aus als Haskell aber es dauert
+mit meinem Rechner immer noch mehr als eine Sekunde, bis der
+Interpreter die Berechnung gestemmt hat und das Ergebnis ausdruckt.
+Damit haben wir alles beisammen um verzögerte Auswertung zu
+demonstrieren.  Dafür ergänzen wir das Set um zwei weitere
+Schlüssel-Wert-Paare:</p>
+<pre tabindex="0"><code>nix-repl&gt; funs = rec
+...         { fib = n :
+...             if n &lt; 1 then 0
+...             else if n &lt; 2 then 1
+...             else fib ( n - 1 ) + fib ( n - 2 ) ;
+...
+...           fib35 = fib 35 ;
+...           x = 1 ;
+...         }
+
+nix-repl&gt;
+</code></pre><p>Den Wert für den Schlüssel <code>fib35</code> auszurechnen, sollte
+ein paar Sekunden dauern, aber die Nix Repl nimmt das Set ohne
+Zeitverzögerung entgegen.  Das spricht dafür, dass der Wert für
+<code>fib35</code> nicht sofort berechnet wird.  Wir können uns auch den Wert
+für den Schlüssel <code>x</code> ohne Zeitverzögurung ausgeben lassen:</p>
+<pre tabindex="0"><code>nix-repl&gt; funs.x
+1
+</code></pre><p>Erst wenn wir uns den Wert für <code>fib35</code> ausgeben lassen, gibt es eine
+deutliche Verzögerung von mehreren Sekunden, die darauf hinweist,
+dass der Wert jetzt tatsächlich berechnet wird:</p>
+<pre tabindex="0"><code>nix-repl&gt; funs.fib35
+9227465
+</code></pre><p>Wenn wir uns im Anschluss noch einmal das ganze Set ausgeben lassen,
+geschieht das wieder ohne Verzögerung:</p>
+<pre tabindex="0"><code>nix-repl&gt; funs
+{ fib = «lambda @ (string):1:14»; fib35 = 9227465; x = 1; }
+</code></pre><p>Der Wert für den Schlüssel <code>fib35</code> wurde schon berechnet und
+wird hier einfach wiederverwendet anstatt ihn ein zweites Mal zu
+berechnen.  Deswegen erfolgt die Ausgabe ohne zeitliche Verzögerung.
+Wenn wir vorher nicht <code>funs.fib35</code> ausgewertet hätten, dann
+hätten wir an dieser Stelle ein paar Sekunden auf die Auswertung
+warten müssen.</p>
+<p>Das ist verzögerte Auswertung: die Ausdrücke und Teilausdrücke
+werden nicht sofort ausgewertet sondern erst dann wenn ihr Wert
+tatsächlich benötigt wird, bspw. um eine Ausgabe zu erzeuen.</p>
+<p>Im Allgemeinen ist das eine gute Sache, aber manchmal möchte
+man, dass die Auswertung nicht verzögert sondern sofort
+stattfindet.  Das ist vor allem dann wichtig, wenn zwei Ausdrücke
+irgendwelche externen Effeke haben und diese Effekte in einer
+bestimmen Reihenfolge auftreten sollen.  Dann muss man irgendwie
+sicherstellen, dass die Ausdrücke in der richtigen Reihenfolge
+ausgewertet werden.  In Programmiersprachen, die standardmäßig
+strikt (i.e. unverzögert) auswerten, hat man dieses Problem nicht.
+Da ist die Auswertungsreihenfolge dadurch vorgegeben, in welcher
+Reihenfolge man Ausdrücke notiert.  In Programmiersprachen, die
+standardmäßig verzögert auswerten, benötigt man dafür besondere
+Hilfsmittel, die eine strikte Auswertung sicherstellen.</p>
+<p>Hier kommt <code>builtins.seq</code> ins Spiel.  <code>builtins.seq</code> nimmt zwei
+Ausdrücke entgegen, wertet den ersten Ausdruck aus, verwirft das
+Resultat und wertet dann den zweiten Ausdruck aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.seq 1 2
+2
+</code></pre><p>So wird sichergestellt, dass der erste Ausdruck vor dem zweiten
+ausgewertet wird.  Ich kann gerade kein leicht demonstrierbares
+Beispiel aus dem Ärmel schütteln, bei dem das eine Rolle spielen
+würde, aber wenn bspw. der erste Ausdruck eine Datei schreibt und
+der zweite diese Datei liest, stellt <code>builtins.seq</code> sicher, dass das
+Schreiben tatsächlich vor dem Lesen erfolgt.  Ohne <code>builtins.seq</code>
+wäre diese Reihenfolge wegen der verzögerten Auswertung nicht
+sichergestellt.</p>
+<h3 id="builtinsdeepseq">
+  builtins.deepSeq
+  <a class="anchor" href="#builtinsdeepseq">#</a>
+</h3>
+<p>Die Auswertung von <code>builtins.seq e1 e2</code> ist zwar strikt im Ausdruck
+<code>e1</code>, aber mit einem Haken: der Ausdruck <code>e1</code> wird nur oberflächlich
+strikt ausgewertet.  Ich erkläre kurz, was das bedeutet.  Es gibt
+einfache Ausdrücke, die direkt ausgewertet werden können ohne
+dafür weiter vereinfacht werden zu müssen.  Das sind bspw. einfache
+Zahlenausdrücke <code>123</code> oder Zeichenketten wie <code>&quot;asdf&quot;</code>.  Daneben gibt
+es aber auch komplexe Ausdrücke, die bei der Auswertung zunächst
+auf einen einfachen Ausdruck reduziert werden müssen.  Das ist
+der Fall wenn ein Ausdruck Funktionen (bzw. Operationen) enthält,
+die bei der Auswertung angewendet werden müssen.  Diese Reduktion
+auf einen einfachen Ausdruck erfolgt schrittweise.  Hier ist ein
+Ausdruck, der in mehreren Schritten ausgewertet werden muss:</p>
+<pre tabindex="0"><code>nix-repl&gt; let
+...         f1 = n : 1 + n ;
+...         f2 = n : 2 + n ;
+...         f3 = n : 3 + n ;
+...       in
+...         f3 ( f2 ( f1 0 ) )
+</code></pre><p>Hier ist eine mögliche Auswertung für diesen Ausdruck:</p>
+<pre tabindex="0"><code>=&gt; f3            ( f2            ( f1            0 ) )
+-----------------------------------^^^^^^^^^^^^^----------
+=&gt; f3            ( f2            ( ( n : 1 + n ) 0 ) )
+-----------------------------------^^^^^^^^^^^^^^^--------
+=&gt; f3            ( f2            ( 1 + 0           ) )
+---------------------------------^^^^^^^^^^^^^^^^^^^------
+=&gt; f3            ( f2            1                   )
+-------------------^^^^^^^^^^^^^--------------------------
+=&gt; f3            ( ( n : 2 + n ) 1                   )
+-------------------^^^^^^^^^^^^^^^------------------------
+=&gt; f3            ( 2 + 1                             )
+-----------------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^----
+=&gt; f3            3
+---^^^^^^^^^^^^^------------------------------------------
+=&gt; ( n : 3 + n ) 3
+---^^^^^^^^^^^^^^^----------------------------------------
+=&gt; 3 + 3
+---^^^^^--------------------------------------------------
+=&gt; 6
+</code></pre><p>Ob die Auswertung tatsächlich genau in dieser Reihenfolge
+stattfindet, weiß ich nicht.  Es gibt da verschiedene
+Möglichkeiten.  Relevant ist für uns nur, dass die Auswertung
+schrittweise erfolgt.</p>
+<p>Wenn das nun der Teilausausdruck <code>e1</code> im Ausdruck <code>builtins.seq e1 e2</code> wäre, würde <code>builtins.seq</code> nicht garantieren, dass das ganze
+vor der Auswertung von <code>e2</code> vollständig auf den Wert <code>6</code> reduziert
+wird.  <code>builtins.seq</code> würde lediglich gewährleisten, dass <code>e1</code> auf
+der ersten Ebene strikt ausgewertet wird, also vielleicht bis <code>f3 ( f2 ( 1 + 0 ) )</code>.  Damit wäre die Funktion <code>f1</code> schon vollständig
+abgefrühstückt, aber wenn sich in <code>f2</code> oder <code>f3</code> noch irgendwelche
+externen Nebeneffekte verbergen würden, wäre durch <code>builtins.seq</code>
+nicht sichergestellt, dass diese Effekte vor der Auswertung von
+<code>e2</code> eintreten.  Genau das war gemeint mit der Feststellung,
+<code>builtins.seq</code> würde <code>e1</code> nur oberflächlich strikt auswerten.</p>
+<p>Ich möchte hier anmerken, dass ich mich mit dieser Erläuterung
+recht weit aus dem Fenster lehne.  Ich weiß nicht, wie der Nix
+Interpreter tatsächlich auswertet und ob meine Charakterisierung
+einer nur oberflächlich strikten Auswertung den Nagel auf den Kopf
+trifft.  Ich hoffe, dass es hier kein fundamentales Missverständnis
+meinerseits gibt, das diese Erläuterung zu Stuss macht.  In jedem
+Fall ist das gegenwärtig mein mentales Modell dieser Sache.</p>
+<p>Wenn <code>e1</code> eine Prozedur wie <code>fetchGit</code> ist, die direkt einen externen
+Nebeneffekt erzeugt, genügt die oberflächlich strikte Auswertung
+durch <code>builtins.seq</code>, aber wenn ein komplexer Ausdruck vollständig,
+also in voller Tiefe, strikt ausgewertet werden soll, muss dafür
+<code>builtins.deepSeq</code> verwendet werden.</p>
+<p>Meine Motivation, dafür ein gutes Beispiel zu finden, ist bei Null,
+denn ich habe noch reichlich Built-ins vor mir.  Vielleicht ergänze
+ich später eins.</p>
+<h3 id="builtinsdiv">
+  builtins.div
+  <a class="anchor" href="#builtinsdiv">#</a>
+</h3>
+<p>Die Funktion hinter dem Divisionsoperator <code>/</code>, den wir schon weiter
+oben behandelt haben:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.div 7.0 2
+3.5
+
+nix-repl&gt; builtins.div 7 2
+3
+</code></pre><h3 id="builtinselem">
+  builtins.elem
+  <a class="anchor" href="#builtinselem">#</a>
+</h3>
+<p>Prüft, ob ein Wert als Element in einer Liste enthalten ist:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.elem 3 [ 1 2 3 ]
+true
+
+nix-repl&gt; builtins.elem 4 [ 1 2 3 ]
+false
+</code></pre><h3 id="builtinselemat">
+  builtins.elemAt
+  <a class="anchor" href="#builtinselemat">#</a>
+</h3>
+<p>Liefert das n-te Element einer Liste:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.elemAt [ &#34;a&#34; &#34;b&#34; &#34;c&#34; ] 0
+&#34;a&#34;
+
+nix-repl&gt; builtins.elemAt [ &#34;a&#34; &#34;b&#34; &#34;c&#34; ] 1
+&#34;b&#34;
+
+nix-repl&gt; builtins.elemAt [ &#34;a&#34; &#34;b&#34; &#34;c&#34; ] 2
+&#34;c&#34;
+
+nix-repl&gt; builtins.elemAt [ &#34;a&#34; &#34;b&#34; &#34;c&#34; ] 3
+error: list index 3 is out of bounds
+</code></pre><p>Das hier ist aufschlussreich:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.elemAt [ &#34;a&#34; &#34;b&#34; &#34;c&#34; ] -1
+error: value is the partially applied built-in function &#39;elemAt&#39;
+       while an integer was expected
+</code></pre><p>Die Fehlermeldung legt nahe, dass das Minuszeichen hier nicht als
+Vorzeichen sondern als Subtraktionsoperator interpretiert wird.
+Um das zu ändern, muss man Klammern setzen:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.elemAt [ &#34;a&#34; &#34;b&#34; &#34;c&#34; ] (-1)
+error: list index -1 is out of bounds
+</code></pre><p>Immer noch ein Fehler, aber ein besserer.</p>
+<h3 id="builtinsfetchurl">
+  builtins.fetchurl
+  <a class="anchor" href="#builtinsfetchurl">#</a>
+</h3>
+<p>Lädt etwas herunter, legt es im Nix Store ab und gibt den Pfad aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.fetchurl https://arxiv.org/pdf/2208.10524
+[4.2 MiB DL]&#34;/nix/store/97ggi3ryxkvdljycw05nq82bgs6kdxcx-2208.10524&#34;
+</code></pre><p>Wenn man schon im Vorfeld den SHA-256 Hash der Datei kennt, kann
+man den Hash mit angeben und damit kryptografisch verifizieren,
+dass es die richtige Datei ist:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.fetchurl
+...         { url = https://arxiv.org/pdf/2208.10524 ;
+...           sha256 = &#34;cbd791862a937ac2f823b81a771e63bdb5313d204e0011965c833ee3889fdc73&#34; ;
+...         }
+&#34;/nix/store/97ggi3ryxkvdljycw05nq82bgs6kdxcx-2208.10524&#34;
+</code></pre><p>Wenn der Hash nicht passt, löst das einen Fehler aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.fetchurl
+...         { url = https://arxiv.org/pdf/2208.10524 ;
+...           sha256 = &#34;ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff&#34; ;
+...         }
+error: hash mismatch in file downloaded from &#39;https://arxiv.org/pdf/2208.10524&#39;:
+         specified: sha256:1zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+                  got:       sha256:0wywky4f6gl3bjb1202f40yk3ddxccg7f6mq4gwc4ylk5a393myb
+                  [4.2 MiB DL]
+</code></pre><p>Der Hash in der Fehlermeldung unterscheidet sich von dem Hash in der Anweisung:</p>
+<pre tabindex="0"><code>sha256 = &#34;ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff&#34; ;
+...
+specified: sha256:1zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+</code></pre><p>Ich nehme an, dass Nix einfach nur eine andere Darstellung verwendet
+um die Hashes kompakter zu machen.  Man sieht das auch daran,
+dass der Hash im Nix Store Pfad ein anderer ist.  Es wäre gut,
+zu wissen, welcher Hash und welche Darstellung das genau ist,
+aber darum kümmere ich mich später.</p>
+<p>Ich bin mir gar nich sicher, ob Nix die Datei jetzt noch einmal
+heruntergeladen hat oder einfach die bereits heruntergeladene Datei
+wiederverwendet hat.  Also würde ich gern die Datei aus dem Store
+löschen und dann noch einmal herunterladen.  Wie geht das?  So:</p>
+<pre tabindex="0"><code>$ nix-store --delete
+    /nix/store/97ggi3ryxkvdljycw05nq82bgs6kdxcx-2208.10524
+</code></pre><p>Aber Achtung: Bevor man die Datei aus dem Store löschen kann,
+muss man die Nix Repl terminieren.  Solange die Repl noch läuft,
+verweigert Nix das Löschen, weil die Datei noch in Verwendung ist.</p>
+<p>Ich lade die Datei also noch einmal mit einem falschen Hash herunter:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.fetchurl
+...         { url = https://arxiv.org/pdf/2208.10524 ;
+...           sha256 = &#34;ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff&#34; ;
+...         }
+error: hash mismatch in file downloaded from &#39;https://arxiv.org/pdf/2208.10524&#39;:
+         specified: sha256:1zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+                  got:       sha256:0wywky4f6gl3bjb1202f40yk3ddxccg7f6mq4gwc4ylk5a393myb
+                  [4.2 MiB DL]
+                  n
+</code></pre><p>Die finale Ausgabe stimmt überein, aber die Ausführung hat deutlich
+länger gedauert, weil Nix die Datei wirklich ein weiteres Mal
+heruntergeladen hat.</p>
+<p>Mit <code>builtins.fetchurl</code> haben wir also die Möglichkeit, beliebige
+Dateien aus dem Netz herunterzuladen und die Echtheit dieser Dateien
+durch Angabe eines SHA-256 Hashes abzusichern.  Das bedeutet, dass
+wir Dateien, deren Hash wir bereits kennen, aus beliebigen Quellen
+herunterladen können, ohne uns Sorgen darüber machen zu müssen,
+dass vielleicht jemand diese Dateien ohne unser Wissen verändert
+haben könnte.  Das ist großartig!  Nix ist ein System für die
+Verwaltung von Softwarepaketen, aber auch jenseits davon fallen
+mir für so etwas viele Einsatzmöglichkeiten ein.</p>
+<h3 id="builtinsfilter">
+  builtins.filter
+  <a class="anchor" href="#builtinsfilter">#</a>
+</h3>
+<p>Bereinigt eine Liste um alle Elemente, denen ein bestimmtes
+Prädikat fehlt:</p>
+<pre tabindex="0"><code>nix-repl&gt; isEven = n : n / 2 == n / 2.0
+
+nix-repl&gt; builtins.filter isEven
+...         [ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 ]
+[ 2 4 6 8 10 12 14 16 ]
+</code></pre><h3 id="builtinsfiltersource">
+  builtins.filterSource
+  <a class="anchor" href="#builtinsfiltersource">#</a>
+</h3>
+<p>Damit kann man Quellen in den Nix Store übertragen und dabei gewisse
+Dateien herausfiltern.  Näher will ich das hier nicht betrachten.
+Die Dokumentation enthält eine Warnung, die man vor dem Gebrauch
+lesen und verstehen sollte.</p>
+<h3 id="builtinsfindfile">
+  builtins.findFile
+  <a class="anchor" href="#builtinsfindfile">#</a>
+</h3>
+<p>Weder in der Nix Repl noch im Handbuch dokumentiert.</p>
+<h3 id="builtinsfloor">
+  builtins.floor
+  <a class="anchor" href="#builtinsfloor">#</a>
+</h3>
+<p>Liefert für eine Zahl <code>x</code> die nächste Ganzzahl <code>n</code> sodass <code>x &gt;= n</code>:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.floor 1.5
+1
+
+nix-repl&gt; builtins.floor 1
+1
+</code></pre><h3 id="builtinsfoldl">
+  builtins.foldl'
+  <a class="anchor" href="#builtinsfoldl">#</a>
+</h3>
+<p>Damit kann man eine Liste von Werten sozusagen &ldquo;zusammenfalten&rdquo;
+auf einen einzigen Wert, indem man sukzessive von links nach rechts
+eine Funktion darauf anwendet, die jeweils zwei Werte mit einander
+kombiniert.  Man muss einen Startwert mit übergeben.  Ausgehend
+von diesem Startwert werden sukzessive die Elemente der Liste
+eingesammelt und mit dem bisherigen Zwischenergebnis kombiniert.</p>
+<p>Hier wird eine Liste von Zahlen via <code>builtins.add</code> mit dem Startwert
+<code>0</code> zusammengefaltet:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.foldl&#39; builtins.add 0 [ 1 2 3 4 5 6 ]
+21
+</code></pre><p>Das entspricht einer Verallgemeinerung der zweiwertigen Addition
+auf beliebig viele Werte.  Mit <code>builtins.foldl'</code> lassen sich viele
+zweiwertige Funktionen auf natürliche Weise verallgemeinern auf
+beliebig viele Werte.  Das setzt natürlich voraus, dass es zu den
+Werten, auf denen man operiert einen neutralen Wert gibt, also eine
+Entsprechung zur Null bei den Zahlen.  Mathematisch ist so eine
+Struktur artikuliert im algebraischen Begriff eines <em>Monoiden</em>.
+Damit muss man sich aber nicht unbedingt befassen: in der Praxis
+kann man auch einfach ein paar Werte mit <code>builtins.foldl'</code>
+zusammenstauchen, ohne sich vorher Gedanken darüber zu machen,
+ob man wirklich eine Null zur Verfügung hat.</p>
+<p>Das zweite <code>l</code> in <code>foldl</code> steht für <em>left</em>, weil von rechts nach
+links gefaltet wird.  Nix stellt nur diese eine Funktion als Built-in
+zur Verfügung, aber im Allgemeinen gibt es auch Faltungsfunktionen
+die von links nach rechts falten.  Die heißen dann typischerweise
+<code>foldr</code>.  Bei der Addition macht das keinen Unterschied, aber bei
+Funktionen, die nicht kommutativ sind ,bei denen also das Ergebnis
+von der Reihenfolge der beiden Argumente abhängt, hängt auch das
+Ergebnis einer Faltung davon ab, in welche Richtung gefaltet wird.</p>
+<p>Das abschließende Hochkomma im Namen <code>builtins.foldl'</code>
+soll anzeigen, dass diese Funktion strikt ausgewertet wird.
+Ich bin weiter oben darauf eingegangen, dass Nix standardmäßig
+verzögert auswertet und dass man in manchen Fällen lieber eine
+strikte Auswertung haben möchte.  Das hier ist ein solcher Fall.
+Das Hochkomma ist nur eine Namenskonvention, die warscheinlich
+daher rührt, dass man sich hier recht stark an Haskell orientiert.
+In Haskell wertet die <code>foldl</code> Funktion aus der Standardbibliothek
+verzögert aus. Daneben gibt es auch eine mit Hochkomma markierte
+<code>foldl'</code> Funktion, die strikt auswertet.  In der Praxis will
+man eigentlich immer eine strikte Faltung nach links, also wäre
+es vielleicht besser gewesen, die strikte Variante <code>foldl</code> (ohne
+Hochkomma) zu nennen.  Schade, dass Nix sich an dieser ungünstigen
+Konvention orientiert, zumal ohnehin nur diese eine Faltungsfunktion
+als Built-in mitgeliefert wird.</p>
+<h3 id="builtinsfromjson">
+  builtins.fromJSON
+  <a class="anchor" href="#builtinsfromjson">#</a>
+</h3>
+<p>Parst und überführt JSON-Werte in Nix-Werte:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.fromJSON &#34;{ \&#34;a\&#34; : 1 , \&#34;b\&#34; : 2 , \&#34;c\&#34; : 3 }&#34;
+{ a = 1; b = 2; c = 3; }
+
+nix-repl&gt; builtins.fromJSON &#34;[ 1, 2, 3 ]&#34;
+[ 1 2 3 ]
+
+nix-repl&gt; builtins.fromJSON &#34;123.456&#34;
+123.456
+
+nix-repl&gt; builtins.fromJSON &#34;\&#34;asdf\&#34;&#34;
+&#34;asdf&#34;
+</code></pre><h3 id="builtinsfunctionargs">
+  builtins.functionArgs
+  <a class="anchor" href="#builtinsfunctionargs">#</a>
+</h3>
+<p>Nimmt eine Funktion entgegen und liefert ein Set mit den Namen ihrer
+Parameter als Schlüssel.  Die Werte geben für jeden Parameter
+Auskunft darüber, ob es zu ihm einen Standardwert gibt:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.functionArgs ( { x , y ? 123 } : x + y )
+{ x = false; y = true; }
+</code></pre><p>Das Fragezeichen ist neue Syntax für mich.  Ziemlich weit am Anfang
+dieses Dokumentes hatte ich Set Patterns erwähnt, die man verwenden
+kann, um benannte Funktionsparameter aufzuschreiben:</p>
+<pre tabindex="0"><code>nix-repl&gt; ({a,b} : a + b) { a = 5 ; b = 6 ; }
+11
+</code></pre><p>Offenbar kann man mit dem Fragezeichen Standardargumente festhalten:</p>
+<pre tabindex="0"><code>nix-repl&gt; ({a?5,b?6} : a + b) {}
+11
+
+nix-repl&gt; ({a?5,b?6} : a + b) { a = 11 ; }
+17
+
+nix-repl&gt; ({a?5,b?6} : a + b) { b = 12 ; }
+17
+
+nix-repl&gt; ({a?5,b?6} : a + b) { a = 11 ; b = 12 ; }
+23
+</code></pre><p>Die sinnvolle Verwendung von <code>builtins.functionArgs</code> setzt natürlich
+voraus, dass eine Funktion mit benannten Parametern via Set Patterns
+aufgeschrieben worden ist.  Für reine Lambda-Funktionen liefert
+<code>builtins.functionArgs</code> immer ein leeres Set:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.functionArgs ( a : b : a + b )
+{ }
+</code></pre><h3 id="builtinsgenlist">
+  builtins.genList
+  <a class="anchor" href="#builtinsgenlist">#</a>
+</h3>
+<p><code>builtins.genlist f n</code> erzeugt eine Liste der Länge <code>n</code>, wobei
+die Funktion <code>f</code> die jeweiligen Elemente aus den jeweiligen Indizes
+berechnet:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.genList ( x : -x ) 4
+[ 0 -1 -2 -3 ]
+
+nix-repl&gt; builtins.genList ( x : 1.0/(x+1) ) 4
+[ 1 0.5 0.333333 0.25 ]
+</code></pre><h3 id="builtinsgenericclosure">
+  builtins.genericClosure
+  <a class="anchor" href="#builtinsgenericclosure">#</a>
+</h3>
+<p>Das ist eine eigenartig spezifische und zugleich eigenartig
+allgemeine Funktion!  Sie erinnert mich ein bisschen an das Märchen
+vom süßen Brei.  Ich würde wirklich gern wissen, wofür sie
+gedacht ist.  Ich erkenne darin jedenfalls keine so klare und
+universell brauchbare Abstraktion wie <code>map</code> oder <code>filter</code> oder
+<code>foldl</code>.</p>
+<p><code>builtins.genericClosure</code> nimmt ein Set mit den Schlüsseln
+<code>startSet</code> und <code>operator</code> entgegen.  <code>startSet</code> ist eine
+Liste mit Sets.  <code>operator</code> ist eine Funktion, die auf einem
+Set operiert und daraus eine Liste von weiteren Sets erzeugt.
+<code>builtins.genericClosure</code> verwendet ausgehend von der <code>startSet</code>
+Liste die <code>operator</code> Funktion um rekursiv aus den bestehenden Sets
+weitere Sets zu berechnen.  Alle hier erwähnten Sets (abgesehen
+von dem äußeren) müssen einen Schlüssel <code>key</code> enthalten.
+Alle Sets, mit einem <code>key</code> Wert, der schon einmal aufgetaucht
+ist, werden verworfen.  Sobald keine Sets mit neuen <code>key</code> Werten
+hinzukommen, endet die Rekursion.</p>
+<p>Das ist ziemlich kompliziert.  Hier sind ein paar Beispiele.
+Zunächst der einfachste Fall:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.genericClosure
+...         { startSet = [] ;
+...           operator = s : [] ;
+...         }
+[ ]
+</code></pre><p>Wir füllen <code>startSet</code> mit ein paar Sets:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.genericClosure
+...         { startSet =
+...             [ { key = 5 ; }
+...               { key = 6 ; }
+...               { key = 7 ; }
+...             ] ;
+...           operator = s : [] ;
+...         }
+[ { ... } { ... } { ... } ]
+</code></pre><p>Die Auslassungpunkte kommen daher, dass die Nix Repl beim
+Auswerten und beim Ausgeben der Ergebnisse maximal eine Ebene in
+die Tiefe geht.  Bisher bin ich darauf nicht eingegangen, aber
+das ist schon einmal vorgekommen, nämlich im Abschnitt <a href="#c1447d05c6ee4163ccfb5686d986ca8318492d7f"><em>Sets
+(Mengen)</em></a> wo ich die
+Kurznotation für verschachtelte Sets einführe.  Man erhält die
+Auslassungspunkte schon wenn man eine Liste in eine Liste steckt:</p>
+<pre tabindex="0"><code>nix-repl&gt; [[]]
+[ [ ... ] ]
+</code></pre><p>Die innere Liste ist leer, aber der Interpreter schaut gar nicht
+erst hinein sondern gibt sie gleich mit den Auslassungspunkten aus.</p>
+<p>Man kann die Nix Repl veranlassen, einen Ausdruck in voller Tiefe
+auszuwerten und das Ergebnis in voller Tiefe auszugeben.  Dafür muss
+man dem auszuwertenden Ausdruck die Repl-Anweisung <code>:p</code> voranstellen.
+Damit können wir uns wieder <code>builtins.genericClosure</code> zuwenden:</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.genericClosure
+...             { startSet =
+...                 [ { key = 5 ; }
+...                   { key = 6 ; }
+...                   { key = 7 ; }
+...                 ] ;
+...               operator = s : [] ;
+...             }
+[ { key = 5; } { key = 6; } { key = 7; } ]
+</code></pre><p>Dass Sets, deren <code>key</code> schon einmal vorgekommen ist, verworfen
+werden, gilt schon für die Sets in der <code>startSet</code> Liste:</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.genericClosure
+...             { startSet =
+...                 [ { key = 5 ; }
+...                   { key = 6 ; }
+...                   { key = 7 ; }
+...                   { key = 5 ; }
+...                 ] ;
+...               operator = s : [] ;
+...             }
+[ { key = 5; } { key = 6; } { key = 7; } ]
+</code></pre><p>Um die Wirkung der <code>operator</code> Funktion zu demonstrieren,
+inkrementieren wir einfach die <code>key</code> Werte.  Damit
+<code>built.genericClosure</code> trotzdem terminiert, müssen wir das irgendwo
+deckeln.  Ich schlage vor, wir belassen es bei <code>key &lt; 10</code>:</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.genericClosure
+...             { startSet =
+...                 [ { key = 5 ; }
+...                   { key = 6 ; }
+...                   { key = 7 ; }
+...                   { key = 5 ; }
+...                 ] ;
+...               operator = s :
+...                 [ { key =
+...                         if s.key &lt; 9
+...                         then s.key + 1
+...                         else s.key ;
+...                   }
+...                 ] ;
+...             }
+[ { key = 5; } { key = 6; } { key = 7; } { key = 8; } { key = 9; } ]
+</code></pre><p>Das heißt, wir inkrementieren den <code>key</code> Wert so lange er
+kleiner als <code>9</code> ist.  Das Set mit <code>key = 9</code> wird noch erzeugt,
+aber darüber kommt nichts mehr.  Die Ausgabe ist so wie ich es
+erwartet habe.  Ich glaube, ich habe damit vollständig erfasst,
+was <code>builtins.genericClosure</code> macht.  Einen guten Anwendungsfall
+dafür habe ich nicht, aber zumindest den vagen Eindruck, dass man
+damit etwas nützliches machen kann, vielleicht irgend etwas in
+Richtung transitiver Hüllen.</p>
+<h3 id="builtinsgetattr">
+  builtins.getAttr
+  <a class="anchor" href="#builtinsgetattr">#</a>
+</h3>
+<p>Liefert aus einem Set den Wert zu einem Schlüssel:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.getAttr &#34;foo&#34; { foo = 123 ; }
+123
+</code></pre><p>Wenn es den Schlüssel nicht gibt, löst das einen Fehler aus:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.getAttr &#34;bar&#34; { foo = 123 ; }
+error: attribute &#39;bar&#39; missing for call to &#39;getAttr&#39;
+</code></pre><p>Das selbe kann man natürlich schon mit dem <code>.</code> Operator machen:</p>
+<pre tabindex="0"><code>nix-repl&gt; s = { foo = 123 ; }
+
+nix-repl&gt; s.foo
+123
+</code></pre><p>Aber es gibt einen Unterschied: <code>builtins.getAttr</code> nimmt den
+Schlüssel als String.  Dadurch kann man den Schlüssel dynamisch
+konstruieren:</p>
+<pre tabindex="0"><code>nix-repl&gt; s = { foo = 123 ; }
+
+nix-repl&gt; builtins.getAttr ( &#34;f&#34; + &#34;o&#34; + &#34;o&#34; ) s
+123
+</code></pre><p>Update: der <code>.</code> Operator akzeptiert auch Strings:</p>
+<pre tabindex="0"><code>nix-repl&gt; { foo = 123 ; }.&#34;foo&#34;
+123
+</code></pre><p>Aber dynamisch konstruieren kann man den Schlüssel trotzdem nicht:</p>
+<pre tabindex="0"><code>nix-repl&gt; { foo = 123 ; }.( &#34;f&#34; + &#34;o&#34; + &#34;o&#34; )
+error: syntax error, unexpected &#39;(&#39;, ...
+
+nix-repl&gt; { foo = 123 ; }.( &#34;foo&#34; )
+error: syntax error, unexpected &#39;(&#39;, ...
+</code></pre><h3 id="builtinsgetcontext">
+  builtins.getContext
+  <a class="anchor" href="#builtinsgetcontext">#</a>
+</h3>
+<p>Weder in der Nix Repl noch im Handbuch dokumentiert.</p>
+<h3 id="builtinsgetenv-1">
+  builtins.getEnv
+  <a class="anchor" href="#builtinsgetenv-1">#</a>
+</h3>
+<p>Liefert den Wert einer Umgebungsvariable als String:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.getEnv &#34;HOME&#34;
+&#34;/home/aramis&#34;
+</code></pre><p>Für fehlende Umgebungsvariable wird der leere String wird der
+leere String gegeben:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.getEnv &#34;sa0iboojav9ood5C&#34;
+&#34;&#34;
+</code></pre><h3 id="builtinsgetflake">
+  builtins.getFlake
+  <a class="anchor" href="#builtinsgetflake">#</a>
+</h3>
+<p>Lädt eine Nix Flake herunter und gibt ihre Attribute zusammen
+mit ein paar Metadaten aus.</p>
+<p>Flakes sind ein alternativer Mechanismus um Abhängigkeiten zu
+beschreiben und Software in den Nix Store herunterzuladen.
+Nix Channels folgen in der Handhabung dem typischen
+Paketverwaltungsmodell von Linux Distros:  Es gibt Kanäle, in denen
+versionierte Softwarepakete verfügbar sind, die man bei Bedarf
+herunterladen kann.  Um seine Software auf dem neusten Stand zu
+halten, ruft man zunächst aus seinen Kanälen Informationen zu
+den aktuellen Versionen ab und installiert dann Updates für die
+Software, die nicht mehr auf dem neusten Stand ist.</p>
+<p>So sieht das für die Debian/Ubuntu Paketverwaltung aus:</p>
+<pre tabindex="0"><code>$ apt update            # Aktualisiere Kanäle
+$ apt upgrade           # Aktualisiere Softwarepakete
+</code></pre><p>So sieht das für Nix aus:</p>
+<pre tabindex="0"><code>$ nix-channel --update  # Aktualisiere Kanäle
+$ nix-env --upgrade     # Aktualisiere Softwarepakete
+</code></pre><p>Mit Debian/Ubuntu verwendet man <code>apt</code> für beide Schritte.  Mit Nix
+verwendet man im ersten Schritt <code>nix-channel</code> und im zweiten Schritt
+<code>nix-env</code>, aber an den Flags sieht man schon, mit wes Geistes Kind
+man es hier zu tun hat.</p>
+<p>Im Unterschied dazu, orientieren sich Flakes an Paketverwaltungen wie
+Cargo (Rust) oder NPM (JS).  Es gibt keine Kanäle.  Man deklariert
+die Abhängigkeiten einer Software als Git Repositories in einer
+<code>flake.nix</code> Datei.  Während der Installation der Abhängigkeiten
+wird eine <code>flake.lock</code> Datei erzeugt, welche die Hashes der
+verwendeten Git Commits protokolliert und dadurch die Abhängigkeiten
+sozusagen einfriert.</p>
+<p>Flakes sind noch als experimentell markiert und müssen in einer
+Konfigurationsdatei aktiviert werden bevor sie verwendet werden
+können:</p>
+<pre tabindex="0"><code>$ echo experimental-features = nix-command flakes  
+    &gt;&gt; ~/.config/nix/nix.conf
+</code></pre><p>Ich habe mir, über das hier aufgeschriebene hinaus, Flakes noch
+nicht genauer angeschaut.</p>
+<h3 id="builtinsgroupby">
+  builtins.groupBy
+  <a class="anchor" href="#builtinsgroupby">#</a>
+</h3>
+<p><code>builtings.groupBy f ls</code> gruppiert die Liste <code>ls</code> anhand der Funktion
+<code>f</code>:</p>
+<pre tabindex="0"><code>nix-repl&gt; isEven = n : n / 2 == n / 2.0
+
+nix-repl&gt; :p builtins.groupBy
+...             ( n : toString ( isEven n ) ) [ 1 2 3 4 5 6 7 8 9 ]
+{ &#34;&#34; = [ 1 3 5 7 9 ]; &#34;1&#34; = [ 2 4 6 8 ]; }
+</code></pre><p>Dabei muss <code>f</code> stets einen String zurückgeben.  Sonst funktioniert
+das nicht:</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.groupBy isEven [ 1 2 3 4 5 6 7 8 9 ]
+error: value is a Boolean while a string was expected
+</code></pre><h3 id="builtinshasattr">
+  builtins.hasAttr
+  <a class="anchor" href="#builtinshasattr">#</a>
+</h3>
+<p>Prüft ob ein Schlüssel in einem Set enthalten ist:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.hasAttr &#34;foo&#34; {}
+false
+
+nix-repl&gt; builtins.hasAttr &#34;foo&#34; { foo = 123 ; }
+true
+</code></pre><p>Offenbar gibt es auch einen <code>?</code> Operator, der dasselbe macht:</p>
+<pre tabindex="0"><code>nix-repl&gt; {} ? &#34;foo&#34;
+false
+
+nix-repl&gt; { foo = 123 ; } ? &#34;foo&#34;
+true
+</code></pre><p>Der <code>?</code> Operator kann den zu prüfenden Schlüssel nicht nur als
+String sondern auch als einfachen Bezeichner verarbeiten:</p>
+<pre tabindex="0"><code>nix-repl&gt; { foo = 123 ; } ? foo
+true
+
+nix-repl&gt; {} ? foo
+false
+</code></pre><p>Der <code>?</code> Operator hat die selbe Beschränkung wie der <code>.</code> Operator,
+nämlich dass der Schlüssel nicht dynamisch erzeugt werden kann:</p>
+<pre tabindex="0"><code>nix-repl&gt; { foo = 123 ; } ? ( &#34;f&#34; + &#34;o&#34; + &#34;o&#34; )
+error: syntax error, unexpected &#39;(&#39;, ...
+
+nix-repl&gt; { foo = 123 ; } ? ( &#34;foo&#34; )
+error: syntax error, unexpected &#39;(&#39;, ...
+</code></pre><h3 id="builtinshascontext">
+  builtins.hasContext
+  <a class="anchor" href="#builtinshascontext">#</a>
+</h3>
+<p>Weder in der Nix Repl noch im Handbuch dokumentiert.</p>
+<h3 id="builtinshashfile">
+  builtins.hashFile
+  <a class="anchor" href="#builtinshashfile">#</a>
+</h3>
+<p>Erzeugt einen Hash Wert aus einer Datei.  Erwartet werden zwei
+Argumente.  Das erste Argument ist der Hash-Algorithmus.  Möglich
+sind <code>&quot;md5&quot;</code>, <code>&quot;sha1&quot;</code>, <code>&quot;sha256&quot;</code> und <code>&quot;sha512&quot;</code>.  Das zweite
+Argument ist der Pfad zur Datei.  Der Pfad kann als Nix Pfad oder
+als String übergeben werden.</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.hashFile &#34;md5&#34;
+...         /nix/store/97ggi3ryxkvdljycw05nq82bgs6kdxcx-2208.10524
+&#34;ffab34ab46902e10183dc2a065e50ebd&#34;
+
+nix-repl&gt; builtins.hashFile &#34;md5&#34;
+...         &#34;/nix/store/97ggi3ryxkvdljycw05nq82bgs6kdxcx-2208.10524&#34;
+&#34;ffab34ab46902e10183dc2a065e50ebd&#34;
+
+nix-repl&gt; builtins.hashFile &#34;sha1&#34;
+...         /nix/store/97ggi3ryxkvdljycw05nq82bgs6kdxcx-2208.10524
+&#34;95936f2f3d784c7a90623acfbb9d093384f5a6a2&#34;
+
+nix-repl&gt; builtins.hashFile &#34;sha1&#34;
+...         &#34;/nix/store/97ggi3ryxkvdljycw05nq82bgs6kdxcx-2208.10524&#34;
+&#34;95936f2f3d784c7a90623acfbb9d093384f5a6a2&#34;
+</code></pre><p>Die Funktion verarbeitet beliebige Pfade, auch außerhalb des Nix
+Store.  Leider weiß ich jetzt immer noch nicht, was es mit dem Hash
+<code>97ggi3ryxkvdljycw05nq82bgs6kdxcx</code> im Store Path auf sich hat.</p>
+<h3 id="builtinshashstring">
+  builtins.hashString
+  <a class="anchor" href="#builtinshashstring">#</a>
+</h3>
+<p>Erzeugt einen Hash Wert aus einem String.  Erwartet werden
+zwei Argumente.  Das erste Argument ist der Hash-Algorithmus.
+Möglich sind <code>&quot;md5&quot;</code>, <code>&quot;sha1&quot;</code>, <code>&quot;sha256&quot;</code> und <code>&quot;sha512&quot;</code>.
+Das zweite ist der zu verarbeitende String:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.hashString &#34;md5&#34; &#34;foobar&#34;
+&#34;3858f62230ac3c915f300c664312c63f&#34;
+</code></pre><h3 id="builtinshead">
+  builtins.head
+  <a class="anchor" href="#builtinshead">#</a>
+</h3>
+<p>Liefert das erste Element einer Liste:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.head [ &#34;a&#34; &#34;b&#34; &#34;c&#34; ]
+&#34;a&#34;
+</code></pre><p>Wenn man sich das ganze im mathematichen Sinne als eine Abbildung von
+der Menge aller Listen auf die Menge aller möglichen Listenelemente
+vorzustellen versucht, stellt man fest, dass es in der Sprechweise
+der Schulmathematik eine mögliche Definitionslücke gibt: nämlich
+bei der leeren Liste:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.head []
+error: list index 0 is out of bounds
+</code></pre><p>Die Fehlermeldung lässt vermuten, dass <code>builtins.head ls</code>
+intern in <code>builtins.elemAt ls 0</code> übersetzt wird.  Jedenfalls
+löst die Funktion für die leere Liste einen Fehler aus.  Es ist
+strenggenommen nur eine partielle Funktion.  Das ist schade, wobei
+ich hier noch mehr Verständnis dafür habe als bei der <code>head</code>
+Funktion aus der Haskell Standardbibliothek, die das gleiche
+Problem hat.</p>
+<h3 id="builtinsintersectattrs">
+  builtins.intersectAttrs
+  <a class="anchor" href="#builtinsintersectattrs">#</a>
+</h3>
+<p>Erwartet zwei Sets und liefert ein Set mit den Schlüssel-Wert-Paaren
+aus dem zweiten Set, deren Schlüssel auch im ersten Set vorkommen:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.intersectAttrs
+...         { a = 1 ; b = 2 ; } { b = 3 ; c = 4 ; }
+{ b = 3; }
+</code></pre><h3 id="builtinsisattrs">
+  builtins.isAttrs
+  <a class="anchor" href="#builtinsisattrs">#</a>
+</h3>
+<p>Prüft, ob es sich bei einem Wert um ein Set handelt:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.isAttrs {}
+true
+
+nix-repl&gt; builtins.isAttrs 123
+false
+</code></pre><h3 id="builtinsisbool">
+  builtins.isBool
+  <a class="anchor" href="#builtinsisbool">#</a>
+</h3>
+<p>Prüft, ob es sich bei einem Wert um einen boolschen Wert handelt:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.isBool false
+true
+
+nix-repl&gt; builtins.isBool 123
+false
+</code></pre><h3 id="builtinsisfloat">
+  builtins.isFloat
+  <a class="anchor" href="#builtinsisfloat">#</a>
+</h3>
+<p>Prüft, ob es sich bei einem Wert um eine Fließkommazahl handelt:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.isFloat 123.456
+true
+
+nix-repl&gt; builtins.isFloat 123
+false
+</code></pre><h3 id="builtinsisfunction">
+  builtins.isFunction
+  <a class="anchor" href="#builtinsisfunction">#</a>
+</h3>
+<p>Prüft, ob es sich bei einem Wert um eine Funktion handelt:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.isFunction ( x : x )
+true
+
+nix-repl&gt; builtins.isFunction 123
+false
+</code></pre><h3 id="builtinsisint">
+  builtins.isInt
+  <a class="anchor" href="#builtinsisint">#</a>
+</h3>
+<p>Prüft, ob es sich bei einem Wert um eine Ganzzahl handelt:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.isInt 123
+true
+
+nix-repl&gt; builtins.isInt &#34;123&#34;
+false
+</code></pre><h3 id="builtinsislist">
+  builtins.isList
+  <a class="anchor" href="#builtinsislist">#</a>
+</h3>
+<p>Prüft, ob es sich bei einem Wert um eine Liste handelt:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.isList []
+true
+
+nix-repl&gt; builtins.isList 123
+false
+</code></pre><h3 id="builtinsispath">
+  builtins.isPath
+  <a class="anchor" href="#builtinsispath">#</a>
+</h3>
+<p>Prüft, ob es sich bei einem Wert um einen Nix Pfad handelt:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.isPath ./.
+true
+
+nix-repl&gt; builtins.isPath 123
+false
+</code></pre><h3 id="builtinsisstring">
+  builtins.isString
+  <a class="anchor" href="#builtinsisstring">#</a>
+</h3>
+<p>Prüft, ob es sich bei einem Wert um eine Zeichenkette (String)
+handelt:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.isString &#34;&#34;
+true
+
+nix-repl&gt; builtins.isString 123
+false
+</code></pre><h3 id="builtinslangversion">
+  builtins.langVersion
+  <a class="anchor" href="#builtinslangversion">#</a>
+</h3>
+<p>Undokumentiert.  Wahrscheinlich ist Nix (die Sprache) irgendwie
+versioniert:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.langVersion
+6
+</code></pre><h3 id="builtinslength">
+  builtins.length
+  <a class="anchor" href="#builtinslength">#</a>
+</h3>
+<p>Liefert die Länge einer Liste:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.length [ &#34;a&#34; &#34;b&#34; &#34;c&#34; ]
+3
+</code></pre><h3 id="builtinslessthan">
+  builtins.lessThan
+  <a class="anchor" href="#builtinslessthan">#</a>
+</h3>
+<p>Die Funktion hinter dem <code>&lt;</code> Operator:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.lessThan 3 4
+true
+
+nix-repl&gt; builtins.lessThan 4 3
+false
+</code></pre><h3 id="builtinslisttoattrs">
+  builtins.listToAttrs
+  <a class="anchor" href="#builtinslisttoattrs">#</a>
+</h3>
+<p>Verarbeitet eine Liste von Sets mit Schlüsseln <code>name</code> und <code>value</code>
+zu einem Set mit entsprechenden Schlüssel-Wert-Paaren:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.listToAttrs
+...         [ { name = &#34;foo&#34; ; value = 123 ; }
+...           { name = &#34;bar&#34; ; value = 456 ; }
+...         ]
+{ bar = 456; foo = 123; }
+</code></pre><h3 id="builtinsmapattrs">
+  builtins.mapAttrs
+  <a class="anchor" href="#builtinsmapattrs">#</a>
+</h3>
+<p>Eine Map-Funktion für Sets, die auf den Werten operiert und dabei
+die Schlüssel berücksichtigen kann:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.mapAttrs
+...         ( k : v : k + &#34;:&#34; + builtins.toString v )
+...         { a = 1 ; b = 2 ; c = 3 ; }
+{ a = &#34;a:1&#34;; b = &#34;b:2&#34;; c = &#34;c:3&#34;; }
+</code></pre><h3 id="builtinsmatch">
+  builtins.match
+  <a class="anchor" href="#builtinsmatch">#</a>
+</h3>
+<p>Erwartet einen regulären Ausdruck und einen String.  Der reguläre
+Ausdruck kann RegEx-Gruppen enthalten.  Als Ergebnis liefert
+<code>builtins.match</code> eine Liste der Übereinstimmungen für diese
+RegEx-Gruppen.  Ohne RegEx-Gruppen ist das Ergebnis natürlich die
+leere Liste (bei Übereinstimmung).  Wenn der String nicht auf den
+regulären Ausdruck passt, ist das Ergebnis <code>null</code>:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.match &#34;foo&#34; &#34;bar&#34;
+null
+
+nix-repl&gt; builtins.match &#34;foo&#34; &#34;foo&#34;
+[ ]
+
+nix-repl&gt; builtins.match &#34;a(b)c(d)e&#34; &#34;abcde&#34;
+[ &#34;b&#34; &#34;d&#34; ]
+</code></pre><p>RegEx-Gruppen sind Teile eines regulären Ausdrucks, die durch
+Klammern hervorgehoben sind.  Man verwendet sie, um nicht nur zu
+prüfen ob ein String auf einen regulären Ausdruck passt, sondern
+auch Teile aus dem String zu extrahieren. Beispielsweise könnte man
+einen regulären Ausdruck für postalische Adressen konstruieren,
+der die Straße, die Hausnummer, die Postleitzahl und die Stadt
+extrahiert.</p>
+<h3 id="builtinsmul">
+  builtins.mul
+  <a class="anchor" href="#builtinsmul">#</a>
+</h3>
+<p>Die Funktion hinter dem <code>*</code> Operator:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.mul 3 5
+15
+</code></pre><h3 id="builtinsnixpath">
+  builtins.nixPath
+  <a class="anchor" href="#builtinsnixpath">#</a>
+</h3>
+<p>Weder in der Nix Repl noch im Handbuch dokumentiert.</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.nixPath
+[ { path = &#34;/home/aramis/.nix-defexpr/channels&#34;; prefix = &#34;&#34;; } ]
+</code></pre><h3 id="builtinsnixversion">
+  builtins.nixVersion
+  <a class="anchor" href="#builtinsnixversion">#</a>
+</h3>
+<p>Liefert die Nix Versionsnummer:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.nixVersion
+&#34;2.10.3&#34;
+</code></pre><p>Die Nix Versionsnummer wird auch ausgegeben wenn man die Repl
+startet:</p>
+<pre tabindex="0"><code>$ nix repl
+Welcome to Nix 2.10.3. Type :? for help.
+
+nix-repl&gt;
+</code></pre><h3 id="builtinsparsedrvname">
+  builtins.parseDrvName
+  <a class="anchor" href="#builtinsparsedrvname">#</a>
+</h3>
+<p>Zerlegt einen Paketbezeichner der Form <code>&lt;Name&gt;-&lt;Version&gt;</code> in den
+Namen und die Version des Pakets auf.  Das Ergebnis wird als Set
+mit den Schlüsseln <code>name</code> und <code>version</code> gegeben:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.parseDrvName &#34;nix-0.12pre12876&#34;
+{ name = &#34;nix&#34;; version = &#34;0.12pre12876&#34;; }
+</code></pre><p>Die beiden Teile müssen durch einen Bindestrich getrennt sein.
+Die Version muss mit Ziffern beginnen.  Sonst ist mindestens einer
+der beiden Werte der leere String:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.parseDrvName &#34;&#34;
+{ name = &#34;&#34;; version = &#34;&#34;; }
+
+nix-repl&gt; builtins.parseDrvName &#34;foo123&#34;
+{ name = &#34;foo123&#34;; version = &#34;&#34;; }
+
+nix-repl&gt; builtins.parseDrvName &#34;foo-bar&#34;
+{ name = &#34;foo-bar&#34;; version = &#34;&#34;; }
+
+nix-repl&gt; builtins.parseDrvName &#34;foo-1bar&#34;
+{ name = &#34;foo&#34;; version = &#34;1bar&#34;; }
+</code></pre><h3 id="builtinspartition">
+  builtins.partition
+  <a class="anchor" href="#builtinspartition">#</a>
+</h3>
+<p>Trennt die Spreu vom Weizen:</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.partition ( n : n &gt; 3 ) [ 1 2 3 4 5 6 ]
+{ right = [ 4 5 6 ]; wrong = [ 1 2 3 ]; }
+</code></pre><h3 id="builtinspath">
+  builtins.path
+  <a class="anchor" href="#builtinspath">#</a>
+</h3>
+<p>Fügt Daten zum Nix Store hinzu.  Die funktion nimmt ein Set
+als Argument entgegen.  Nur der Schlüssel <code>path</code> ist Pflicht.
+Hier sind alle Schlüssel:</p>
+<ul>
+<li><code>path</code>: der Pfad zu den Daten</li>
+<li><code>name</code>: der Pfadname im Nix Store</li>
+<li><code>filter</code>: die Funktion; filtert unerwünschte Unterpfade heraus</li>
+<li><code>recursive</code>:
+<ul>
+<li><code>false</code>: fügt den Pfad mit einem flachen Hash zum Store hinzu</li>
+<li><code>true</code>: fügt den Pfad mit einem Hash der NAR Serialisierung
+zum Store hinzu</li>
+</ul>
+</li>
+<li><code>sha256</code>: der zu erwartende Hash für die Daten in <code>path</code></li>
+</ul>
+<p>NAR steht für <em>Nix Archive</em>.  Das ist ein Serialisierungsformat
+für Dateisystemobjekte (i.e. Dateien, Verzeichnisse, Symlinks).
+NAR ist vergleichbar mit Archivformaten wie TAR und ZIP.
+Allerdings kann es bei diesen Formaten für ein und dasselbe
+Objekt mehrere gültige Serialisierungen geben, zum Beispiel
+weil die Reihenfolge der Serialisierung von Verzeichnisinhalten
+nicht definiert ist oder weil eine variable Menge an Füllbytes
+zwischen Segmenten der Serialisierung zulässig ist oder weil
+auch Zeitstempel mit in die Serialisierung aufgenommen werden.
+Die Beziehung zwischen einem serialisierten Objekt und den Bytes
+seiner Serialisierung hat somit keinen Abbildungscharakter.
+Das macht diese Archivformate unbrauchbar wenn der Hash der
+Serialisierung als Hash für das serialisierte Objekt geeignet
+sein soll.  NAR ist speziell dafür entwickelt worden,
+Dateisystemobjekte für das Hashing zu serialisieren und
+lässt keinen Implementierungsspielraum, der die Serialisierung
+eines Dateisystemobjektes in verschiedene Bytefolgen gestatten
+würde. (Quelle: <a href="https://edolstra.github.io/pubs/phd-thesis.pdf">https://edolstra.github.io/pubs/phd-thesis.pdf</a>)</p>
+<p>Fügt Daten zum Nix Store hinzu.  Die funktion nimmt ein Set
+als Argument entgegen.  Nur der Schlüssel <code>path</code> ist Pflicht.
+Hier sind alle Schlüssel:</p>
+<ul>
+<li><code>path</code>: der Pfad zu den Daten</li>
+<li><code>name</code>: der Pfadname im Nix Store</li>
+<li><code>filter</code>: die Funktion; filtert unerwünschte Unterpfade heraus</li>
+<li><code>recursive</code>:
+<ul>
+<li><code>false</code>: fügt den Pfad mit einem flachen Hash zum Store hinzu</li>
+<li><code>true</code>: fügt den Pfad mit einem Hash der NAR Serialisierung
+zum Store hinzu</li>
+</ul>
+</li>
+<li><code>sha256</code>: der zu erwartende Hash für die Daten in <code>path</code></li>
+</ul>
+<p>NAR steht für <em>Nix Archive</em>.  Das ist ein Serialisierungsformat
+für Dateisystemobjekte (i.e. Dateien, Verzeichnisse, Symlinks).
+NAR ist vergleichbar mit Archivformaten wie TAR und ZIP.
+Allerdings kann es bei diesen Formaten für ein und dasselbe
+Objekt mehrere gültige Serialisierungen geben, zum Beispiel
+weil die Reihenfolge der Serialisierung von Verzeichnisinhalten
+nicht definiert ist oder weil eine variable Menge an Füllbytes
+zwischen Segmenten der Serialisierung zulässig ist oder weil
+auch Zeitstempel mit in die Serialisierung aufgenommen werden.
+Die Beziehung zwischen einem serialisierten Objekt und den Bytes
+seiner Serialisierung hat somit keinen Abbildungscharakter.
+Das macht diese Archivformate unbrauchbar wenn der Hash der
+Serialisierung als Hash für das serialisierte Objekt geeignet
+sein soll.  NAR ist speziell dafür entwickelt worden,
+Dateisystemobjekte für das Hashing zu serialisieren und
+lässt keinen Implementierungsspielraum, der die Serialisierung
+eines Dateisystemobjektes in verschiedene Bytefolgen gestatten
+würde. (Quelle: <a href="https://edolstra.github.io/pubs/phd-thesis.pdf">https://edolstra.github.io/pubs/phd-thesis.pdf</a>)</p>
+<h3 id="builtinspathexists">
+  builtins.pathExists
+  <a class="anchor" href="#builtinspathexists">#</a>
+</h3>
+<p>Prüft, ob ein Pfad im lokalen Dateisystem existiert:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.pathExists /home/aramis
+true
+
+nix-repl&gt; builtins.pathExists /home/foo
+false
+</code></pre><p>Kann auch Strings verarbeiten:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.pathExists &#34;/&#34;
+true
+</code></pre><p>Oben hatte ich ein paar Prozeduren aufgelistet, die Nix <em>impure</em>
+machen.  Diese hier (und die nachfolgenden) hätte man auch mit
+auflisten können.</p>
+<p>Prüft, ob ein Pfad im lokalen Dateisystem existiert:</p>
+<pre><code>nix-repl&gt; builtins.pathExists /home/aramis
+true
+
+nix-repl&gt; builtins.pathExists /home/foo
+false
+</code></pre>
+<p>Kann auch Strings verarbeiten:</p>
+<pre><code>nix-repl&gt; builtins.pathExists &quot;/&quot;
+true
+</code></pre>
+<p>Oben hatte ich ein paar Prozeduren aufgelistet, die Nix <em>impure</em>
+machen.  Diese hier (und die nachfolgenden) hätte man auch mit
+auflisten können.</p>
+<h3 id="builtinsreaddir">
+  builtins.readDir
+  <a class="anchor" href="#builtinsreaddir">#</a>
+</h3>
+<p>Liefert für einen Verzeichnispfad ein Set mit den
+Verzeichnisinhalten als Schlüssel und den jeweiligen Dateitypen
+als Werte:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.readDir /home
+{ aramis = &#34;directory&#34;; }
+</code></pre><p>Die möglichen Werte für den Dateityp sind  <code>&quot;regular&quot;</code>,
+<code>&quot;directory&quot;</code>, <code>&quot;symlink&quot;</code> und <code>&quot;unknown&quot;</code>.</p>
+<p>Liefert für einen Verzeichnispfad ein Set mit den
+Verzeichnisinhalten als Schlüssel und den jeweiligen Dateitypen
+als Werte:</p>
+<pre><code>nix-repl&gt; builtins.readDir /home
+{ aramis = &quot;directory&quot;; }
+</code></pre>
+<p>Die möglichen Werte für den Dateityp sind  <code>&quot;regular&quot;</code>,
+<code>&quot;directory&quot;</code>, <code>&quot;symlink&quot;</code> und <code>&quot;unknown&quot;</code>.</p>
+<h3 id="builtinsreadfile">
+  builtins.readFile
+  <a class="anchor" href="#builtinsreadfile">#</a>
+</h3>
+<p>Liefert den Inhalt einer Datei als String:</p>
+<pre tabindex="0"><code>$ echo hallo &gt; greeting.txt
+
+$ nix repl
+Welcome to Nix 2.10.3. Type :? for help.
+
+nix-repl&gt; builtins.readFile ./greeting.txt
+&#34;hallo\n&#34;
+</code></pre><p>Liefert den Inhalt einer Datei als String:</p>
+<pre><code>$ echo hallo &gt; greeting.txt
+
+$ nix repl
+Welcome to Nix 2.10.3. Type :? for help.
+
+nix-repl&gt; builtins.readFile ./greeting.txt
+&quot;hallo\n&quot;
+</code></pre>
+<h3 id="builtinsreplacestrings">
+  builtins.replaceStrings
+  <a class="anchor" href="#builtinsreplacestrings">#</a>
+</h3>
+<p>Ersetzt alle Vorkommen eines Teilstrings:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.replaceStrings [ &#34;o&#34; ] [ &#34;x&#34; ] &#34;foobar&#34;
+&#34;fxxbar&#34;
+
+nix-repl&gt; builtins.replaceStrings [ &#34;o&#34; &#34;a&#34; ] [ &#34;x&#34; &#34;y&#34; ] &#34;foobar&#34;
+&#34;fxxbyr&#34;
+</code></pre><p>Ersetzt alle Vorkommen eines Teilstrings:</p>
+<pre><code>nix-repl&gt; builtins.replaceStrings [ &quot;o&quot; ] [ &quot;x&quot; ] &quot;foobar&quot;
+&quot;fxxbar&quot;
+
+nix-repl&gt; builtins.replaceStrings [ &quot;o&quot; &quot;a&quot; ] [ &quot;x&quot; &quot;y&quot; ] &quot;foobar&quot;
+&quot;fxxbyr&quot;
+</code></pre>
+<h3 id="builtinssort">
+  builtins.sort
+  <a class="anchor" href="#builtinssort">#</a>
+</h3>
+<p>Sortiert eine Liste anhand einer Vergleichsfunktion:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.sort
+...         ( a : b : a &lt; b )
+...         [ 3 1 4 1 5 9 2 6 5 3 5 8 9 7 9 3 ]
+[ 1 1 2 3 3 3 4 5 5 5 6 7 8 9 9 9 ]
+
+nix-repl&gt; builtins.sort
+...         ( a : b : a &gt; b )
+...         [ 3 1 4 1 5 9 2 6 5 3 5 8 9 7 9 3 ]
+[ 9 9 9 8 7 6 5 5 5 4 3 3 3 2 1 1 ]
+</code></pre><p>Sortiert eine Liste anhand einer Vergleichsfunktion:</p>
+<pre><code>nix-repl&gt; builtins.sort ( a : b : a &lt; b ) [ 3 1 4 1 5 9 2 6 5 3 5 8 9 7 9 3 ]
+[ 1 1 2 3 3 3 4 5 5 5 6 7 8 9 9 9 ]
+
+nix-repl&gt; builtins.sort ( a : b : a &gt; b ) [ 3 1 4 1 5 9 2 6 5 3 5 8 9 7 9 3 ]
+[ 9 9 9 8 7 6 5 5 5 4 3 3 3 2 1 1 ]
+</code></pre>
+<h3 id="builtinssplit">
+  builtins.split
+  <a class="anchor" href="#builtinssplit">#</a>
+</h3>
+<p>Zerteilt einen String anhand eines regulären Ausdrucks in
+eine Liste.  Alles, was auf den regulären Ausdruck passt,
+wird als Trennzeichen behandelt.  Der reguläre Ausdruck kann
+RegEx-Gruppen enthalten.  An jeder Trennstelle wird eine Liste mit
+den Übereinstimmungen für die RegEx-Gruppen an dieser Stelle in
+die Ergebnisliste aufgenommen.  Ohne RegEx-Gruppen werden an den
+Trennstellen entsprechend leere Listen eingefügt:</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.split &#34;a&#34; &#34;bacadaeafagahai&#34;
+[ &#34;b&#34; [ ] &#34;c&#34; [ ] &#34;d&#34; [ ] &#34;e&#34; [ ] &#34;f&#34; [ ] &#34;g&#34; [ ] &#34;h&#34; [ ] &#34;i&#34; ]
+
+nix-repl&gt; builtins.split &#34;a&#34; &#34;bcde&#34;
+[ &#34;bcde&#34; ]
+</code></pre><p>Siehe <a href="#a05994c6afa9711449ac4d8bfdd8b0eb9c1e4996"><code>builtins.match</code></a>
+für mehr zu RegEx-Gruppen.</p>
+<p>Zerteilt einen String anhand eines regulären Ausdrucks in
+eine Liste.  Alles, was auf den regulären Ausdruck passt,
+wird als Trennzeichen behandelt.  Der reguläre Ausdruck kann
+RegEx-Gruppen enthalten.  An jeder Trennstelle wird eine Liste mit
+den Übereinstimmungen für die RegEx-Gruppen an dieser Stelle in
+die Ergebnisliste aufgenommen.  Ohne RegEx-Gruppen werden an den
+Trennstellen entsprechend leere Listen eingefügt:</p>
+<pre><code>nix-repl&gt; :p builtins.split &quot;a&quot; &quot;bacadaeafagahai&quot;
+[ &quot;b&quot; [ ] &quot;c&quot; [ ] &quot;d&quot; [ ] &quot;e&quot; [ ] &quot;f&quot; [ ] &quot;g&quot; [ ] &quot;h&quot; [ ] &quot;i&quot; ]
+
+nix-repl&gt; builtins.split &quot;a&quot; &quot;bcde&quot;
+[ &quot;bcde&quot; ]
+</code></pre>
+<p>Siehe <a href="#builtinsmatch"><code>builtins.match</code></a> für mehr zu RegEx-Gruppen.</p>
+<h3 id="builtinssplitversion">
+  builtins.splitVersion
+  <a class="anchor" href="#builtinssplitversion">#</a>
+</h3>
+<p>Teilt einen String, der eine (Software) Version darstellt, in seine
+Bestandteile auf.  Ich bin mir nicht 100%ig sicher, aber ich denke,
+die Trennstellen sind Punkte <code>.</code>, Bindestriche <code>-</code> und Übergänge
+zwischen Ziffern und Buchstaben:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.splitVersion &#34;a.b-c123e&#34;
+[ &#34;a&#34; &#34;b&#34; &#34;c&#34; &#34;123&#34; &#34;e&#34; ]
+</code></pre><p>Teilt einen String, der eine (Software) Version darstellt, in seine
+Bestandteile auf.  Ich bin mir nicht 100%ig sicher, aber ich denke,
+die Trennstellen sind Punkte <code>.</code>, Bindestriche <code>-</code> und Übergänge
+zwischen Ziffern und Buchstaben:</p>
+<pre><code>nix-repl&gt; builtins.splitVersion &quot;a.b-c123e&quot;
+[ &quot;a&quot; &quot;b&quot; &quot;c&quot; &quot;123&quot; &quot;e&quot; ]
+</code></pre>
+<h3 id="builtinsstoredir">
+  builtins.storeDir
+  <a class="anchor" href="#builtinsstoredir">#</a>
+</h3>
+<p>Undokumentiert.  Liefert den Pfad zum Nix Store als String:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.storeDir
+&#34;/nix/store&#34;
+</code></pre><p>Undokumentiert.  Liefert den Pfad zum Nix Store als String:</p>
+<pre><code>nix-repl&gt; builtins.storeDir
+&quot;/nix/store&quot;
+</code></pre>
+<h3 id="builtinsstorepath">
+  builtins.storePath
+  <a class="anchor" href="#builtinsstorepath">#</a>
+</h3>
+<p>Alles, was ein Programm benötigt, um gebaut zu werden, soll sich
+im Nix Store befinden.  Entsprechend werden die Abhängigkeiten,
+die in Ableitungen (Derivations) deklariert sind, zunächst zum Nix
+Store hinzugefügt.  Das geschieht normalerweise auch dann, wenn
+sich etwas schon im Nix Store befindet.  Mit <code>builtins.storePath</code>
+kann man das vermeiden.</p>
+<p>Alles, was ein Programm benötigt, um gebaut zu werden, soll sich
+im Nix Store befinden.  Entsprechend werden die Abhängigkeiten,
+die in Ableitungen (Derivations) deklariert sind, zunächst zum Nix
+Store hinzugefügt.  Das geschieht normalerweise auch dann, wenn
+sich etwas schon im Nix Store befindet.  Mit <code>builtins.storePath</code>
+kann man das vermeiden.</p>
+<h3 id="builtinsstringlength">
+  builtins.stringLength
+  <a class="anchor" href="#builtinsstringlength">#</a>
+</h3>
+<p>Liefert die Länge eines Strings:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.stringLength &#34;asdf&#34;
+4
+</code></pre><p>Liefert die Länge eines Strings:</p>
+<pre><code>nix-repl&gt; builtins.stringLength &quot;asdf&quot;
+4
+</code></pre>
+<h3 id="builtinssub">
+  builtins.sub
+  <a class="anchor" href="#builtinssub">#</a>
+</h3>
+<p>Die Funktion hinter dem <code>-</code> Operator:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.sub 7 5
+2
+</code></pre><p>Die Funktion hinter dem <code>-</code> Operator:</p>
+<pre><code>nix-repl&gt; builtins.sub 7 5
+2
+</code></pre>
+<h3 id="builtinssubstring">
+  builtins.substring
+  <a class="anchor" href="#builtinssubstring">#</a>
+</h3>
+<p>Selbsterklärend:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.substring 0 3 &#34;nixos&#34;
+&#34;nix&#34;
+</code></pre><p>Selbsterklärend:</p>
+<pre><code>nix-repl&gt; builtins.substring 0 3 &quot;nixos&quot;
+&quot;nix&quot;
+</code></pre>
+<h3 id="builtinstail">
+  builtins.tail
+  <a class="anchor" href="#builtinstail">#</a>
+</h3>
+<p>Liefert eine Liste ohne das erste Element:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.tail [ 1 2 3 ]
+[ 2 3 ]
+
+nix-repl&gt; builtins.tail []
+error: &#39;tail&#39; called on an empty list
+</code></pre><p>Liefert eine Liste ohne das erste Element:</p>
+<pre><code>nix-repl&gt; builtins.tail [ 1 2 3 ]
+[ 2 3 ]
+
+nix-repl&gt; builtins.tail []
+error: 'tail' called on an empty list
+</code></pre>
+<h3 id="builtinstofile-1">
+  builtins.toFile
+  <a class="anchor" href="#builtinstofile-1">#</a>
+</h3>
+<p>Schreibt einen String in eine Datei im Nix Store und gibt den Pfad
+dieser Datei zurück:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.toFile &#34;greeting&#34; &#34;hallo&#34;
+&#34;/nix/store/8fday1j2s9rpc28yirwbjp59a1wr3rx3-greeting&#34;
+</code></pre><p>Die Datei kann dann beispielsweise als Input für Derivationen
+verwendet werden.  Damit lassen sich beispielsweise Build Skripte
+inline unterbringen.</p>
+<h3 id="builtinstojson">
+  builtins.toJSON
+  <a class="anchor" href="#builtinstojson">#</a>
+</h3>
+<p>Übersetzt einen Nix Ausdruck in sein Json Äquivalent, aber mit
+ein paar effektvollen Besonderheiten.  Strings, Integers, Floats,
+Bools, null und Listen werden einfach in ihr Json Äquivalent
+übersetzt.  Nix Sets werden zu Json Objekten.  Davon ausgenommen
+sind Derivationen: die werden in den entsprechenden Ausgabepfad
+übersetzt (als Json String).  Nix Paths werden in den Nix Store
+kopiert und zu ihrem Zielpfad evaluiert (als Json String).</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.toJSON /home/aramis/todo.txt
+&#34;\&#34;/nix/store/dmj65s7zfyzzypymaihy8yd1mrdz27pm-todo.txt\&#34;&#34;
+
+nix-repl&gt; builtins.toJSON 123
+&#34;123&#34;
+
+nix-repl&gt; builtins.toJSON &#34;123&#34;
+&#34;\&#34;123\&#34;&#34;
+
+nix-repl&gt; builtins.toJSON []
+&#34;[]&#34;
+
+nix-repl&gt; builtins.toJSON {}
+&#34;{}&#34;
+</code></pre><p>Ich frage mich, wie hier unterschieden wird zwischen Derivationen
+und anderen Sets.</p>
+<h3 id="builtinstopath">
+  builtins.toPath
+  <a class="anchor" href="#builtinstopath">#</a>
+</h3>
+<p>DEPRECATED.</p>
+<p>Man soll stattdessen für absolute Pfade <code>/. + &quot;/path&quot;</code> und für
+relative Pfade <code>./. + &quot;/path&quot;</code> verwenden.</p>
+<h3 id="builtinstoxml">
+  builtins.toXML
+  <a class="anchor" href="#builtinstoxml">#</a>
+</h3>
+<p>Übersetzt einen Nix Ausdruck in eine XML Darstellung:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.toXML 123
+&#34;&#34;&#34;&lt;?xml version=&#39;1.0&#39; encoding=&#39;utf-8&#39;?&gt;
+&lt;expr&gt;
+  &lt;int value=\&#34;123\&#34; /&gt;
+&lt;/expr&gt;
+&#34;&#34;&#34;
+
+nix-repl&gt; builtins.toXML &#34;123&#34;
+&#34;&#34;&#34;&lt;?xml version=&#39;1.0&#39; encoding=&#39;utf-8&#39;?&gt;
+&lt;expr&gt;
+  &lt;string value=\&#34;123\&#34; /&gt;
+&lt;/expr&gt;
+&#34;&#34;&#34;
+
+nix-repl&gt; builtins.toXML []
+&#34;&#34;&#34;&lt;?xml version=&#39;1.0&#39; encoding=&#39;utf-8&#39;?&gt;
+&lt;expr&gt;
+  &lt;list&gt;
+  &lt;/list&gt;
+&lt;/expr&gt;
+&#34;&#34;&#34;
+
+nix-repl&gt; builtins.toXML {}
+&#34;&#34;&#34;&lt;?xml version=&#39;1.0&#39; encoding=&#39;utf-8&#39;?&gt;
+&lt;expr&gt;
+  &lt;attrs&gt;
+  &lt;/attrs&gt;
+&lt;/expr&gt;
+&#34;&#34;&#34;
+</code></pre><p>Das ist dafür da, mit einem Build Script auf eine strukturiertere
+Weise Daten auszutauschen als es allein mit Umgebungsvariablen
+möglich ist.</p>
+<p>Irgendwie verursacht XML in mir so etwas wie PTSD.</p>
+<h3 id="builtinstraceverbose">
+  builtins.traceVerbose
+  <a class="anchor" href="#builtinstraceverbose">#</a>
+</h3>
+<p>Wenn die Flag <code>--trace-verbose</code> aktiv ist, entspricht
+ein Aufruf von <code>builtins.trace</code> einem Aufruf von
+<a href="#cea058c12c239c26bf1984ea9ae775625dd569ac"><code>builtins.trace</code></a>:</p>
+<pre tabindex="0"><code>$ nix repl --trace-verbose
+Welcome to Nix 2.10.3. Type :? for help.
+
+nix-repl&gt; builtins.traceVerbose [ 1 2 3 ] &#34;foo&#34;
+trace: [ 1 2 3 ]
+&#34;foo&#34;
+</code></pre><p>Ohne die Flag wertet <code>builtins.traceVerbose e1 e2</code> einfach nur zu
+<code>e2</code> aus:</p>
+<pre tabindex="0"><code>$ nix repl
+Welcome to Nix 2.10.3. Type :? for help.
+
+nix-repl&gt; builtins.traceVerbose [ 1 2 3 ] &#34;foo&#34;
+&#34;foo&#34;
+</code></pre><h3 id="builtinstryeval">
+  builtins.tryEval
+  <a class="anchor" href="#builtinstryeval">#</a>
+</h3>
+<p>Darauf gehe ich im Abschnitt
+<a href="#e5969e35d6245cb82705919ad4a5065f5e4329ff">Fehler</a> ein.</p>
+<h3 id="builtinstypeof">
+  builtins.typeOf
+  <a class="anchor" href="#builtinstypeof">#</a>
+</h3>
+<p>Liefert einen String, der den Datentyp eines Ausdrucks bezeichnet.
+Die Datentypen sind <code>&quot;int&quot;</code>, <code>&quot;bool&quot;</code>, <code>&quot;string&quot;</code>, <code>&quot;path&quot;</code>,
+<code>&quot;null&quot;</code>, <code>&quot;set&quot;</code>, <code>&quot;list&quot;</code>, <code>&quot;lambda&quot;</code> und <code>&quot;float&quot;</code>:</p>
+<pre tabindex="0"><code>nix-repl&gt; builtins.typeOf 0
+&#34;int&#34;
+
+nix-repl&gt; builtins.typeOf false
+&#34;bool&#34;
+
+nix-repl&gt; builtins.typeOf &#34;&#34;
+&#34;string&#34;
+
+nix-repl&gt; builtins.typeOf /.
+&#34;path&#34;
+
+nix-repl&gt; builtins.typeOf null
+&#34;null&#34;
+
+nix-repl&gt; builtins.typeOf {}
+&#34;set&#34;
+
+nix-repl&gt; builtins.typeOf []
+&#34;list&#34;
+
+nix-repl&gt; builtins.typeOf ( x : x )
+&#34;lambda&#34;
+
+nix-repl&gt; builtins.typeOf 0.0
+&#34;float&#34;
+</code></pre><h3 id="builtinsunsafediscardoutputdependency">
+  builtins.unsafeDiscardOutputDependency
+  <a class="anchor" href="#builtinsunsafediscardoutputdependency">#</a>
+</h3>
+<p>Undokumentiert.</p>
+<h3 id="builtinsunsafediscardstringcontext">
+  builtins.unsafeDiscardStringContext
+  <a class="anchor" href="#builtinsunsafediscardstringcontext">#</a>
+</h3>
+<p>Undokumentiert.</p>
+<h3 id="builtinsunsafegetattrpos">
+  builtins.unsafeGetAttrPos
+  <a class="anchor" href="#builtinsunsafegetattrpos">#</a>
+</h3>
+<p>Undokumentiert.</p>
+<h3 id="builtinszipattrswith">
+  builtins.zipAttrsWith
+  <a class="anchor" href="#builtinszipattrswith">#</a>
+</h3>
+<p>Das ist wieder so eine Funktion, die etwas ausführlicher beschrieben
+werden muss.</p>
+<p>Sie nimmt eine zweiwertige Funktion <code>f</code> und eine Liste von
+Sets entgegen.  Aus den Sets werden zunächst die Werte für die
+jeweiligen Schlüssel in Listen gesammelt.  Aus den Schlüsseln und
+den zugehörigen Listen wird ein Set erstellt.  Auf dieses Set wird
+<code>builtins.mapAttrs f</code> angewendet.</p>
+<p>Schauen wir uns das zunächst mit einer neutralen Funktion <code>f</code> an:</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.zipAttrsWith
+...             ( k : v : v )
+...             [ { x = 1 ; y = 2 ; }
+...               { x = 3 ; y = 4 ; z = 5 ; }
+...             ]
+{ x = [ 1 3 ]; y = [ 2 4 ]; z = [ 5 ]; }
+</code></pre><p>Ich denke, hier sieht man ganz gut, was vor sich geht: alle
+Schlüssel werden eingesammelt und für jeden Schlüssel werden
+die zugehörigen Werte in Listen akkumuliert.  Diese Listen
+sind naturgemäß nichtleer (sonst gäbe es keinen zugehörigen
+Schlüssel).</p>
+<p>Wir können dann mit <code>f</code> auf diesen Listen operieren.  Beispielsweise
+können wir zählen, wie oft jeder Schlüssel vorkommt:</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.zipAttrsWith
+...             ( k : v : builtins.length v )
+...             [ { x = 1 ; y = 2 ; }
+...               { x = 3 ; y = 4 ; z = 5 ; }
+...             ]
+{ x = 2; y = 2; z = 1; }
+</code></pre><p>Oder wir finden den jeweils größten Wert für jeden Schlüssel.
+Dafür bauen wir uns zunächst eine <code>max</code> Funktion für nichtnegative
+Zahlen:</p>
+<pre tabindex="0"><code>nix-repl&gt; max = ls :
+...         builtins.foldl&#39;
+...             ( a : b : if a &gt; b then a else b )
+...             0
+...             ls
+
+nix-repl&gt; max [ 1 2 3 4 5 4 3 2 1 ]
+5
+</code></pre><p>Damit können wir die größten Schlüssel finden:</p>
+<pre tabindex="0"><code>nix-repl&gt; :p builtins.zipAttrsWith
+...             ( k : v : max v )
+...             [ { x = 1 ; y = 2 ; }
+...               { x = 3 ; y = 4 ; z = 5 ; }
+...             ]
+{ x = 3; y = 4; z = 5; }
+</code></pre><hr>
+<p>Damit ist meine erste Erkundung der Nix Expression Language
+abgeschlossen.  Vielleicht gibt es hier und da noch einen
+unbeleuchteten Aspekt, aber im großen und ganzen habe ich
+einen guten Überblick und ein gutes Gefühl für die Sprache.
+Syntaktisch erinnert sie mich weniger an Haskell aber vielleicht
+ein bisschen an OCaml und an Coqs Gallina Sprache.  Semantisch sind
+wir eher im Erlang/Ruby/JavaScript-Land: dynamische Typisierung,
+polymorphe Listen usw.</p>
+<p>Damit kann ich Nix (die Sprache) zunächst abhaken.  Als nächstes
+arbeite ich G. Gonzalez&rsquo; Vortrag <em>Nix: under the hood</em> durch,
+um den Nix Store und die Nix CLI-Befehle besser kennenzulernen.</p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#auswertung">Auswertung</a></li>
+    <li><a href="#einfache-sprachbestandteile">Einfache Sprachbestandteile</a>
+      <ul>
+        <li><a href="#kommentare">Kommentare</a></li>
+        <li><a href="#booleans">Booleans</a></li>
+        <li><a href="#verzweigung">Verzweigung</a></li>
+        <li><a href="#zahlen">Zahlen</a></li>
+        <li><a href="#strings">Strings</a></li>
+        <li><a href="#pfade">Pfade</a></li>
+        <li><a href="#imports">Imports</a></li>
+        <li><a href="#let-in-ausdrücke">Let-In-Ausdrücke</a></li>
+        <li><a href="#funktionen">Funktionen</a></li>
+        <li><a href="#listen">Listen</a></li>
+        <li><a href="#sets-mengen">Sets (Mengen)</a></li>
+        <li><a href="#das-with-schlüsselwort">Das <code>with</code> Schlüsselwort</a></li>
+        <li><a href="#set-patterns">Set Patterns</a></li>
+        <li><a href="#fehler">Fehler</a></li>
+      </ul>
+    </li>
+    <li><a href="#impurity">Impurity</a>
+      <ul>
+        <li><a href="#builtinsgetenv">builtins.getEnv</a></li>
+        <li><a href="#builtinstrace">builtins.trace</a></li>
+        <li><a href="#builtinstofile">builtins.toFile</a></li>
+      </ul>
+    </li>
+    <li><a href="#top-level-namen">Top-Level Namen</a>
+      <ul>
+        <li><a href="#map">map</a></li>
+        <li><a href="#basenameof">baseNameOf</a></li>
+        <li><a href="#dirof">dirOf</a></li>
+        <li><a href="#null-isnull">null, isNull</a></li>
+        <li><a href="#tostring">toString</a></li>
+        <li><a href="#break">break</a></li>
+        <li><a href="#removeattrs">removeAttrs</a></li>
+        <li><a href="#fromtoml">fromTOML</a></li>
+        <li><a href="#scopedimport">scopedImport</a></li>
+        <li><a href="#fetchgit-fetchmercurial-fetchtarball-fetchtree">fetchGit, fetchMercurial, fetchTarball, fetchTree</a></li>
+        <li><a href="#derivation-derivationstrict">derivation, derivationStrict</a></li>
+        <li><a href="#placeholder">placeholder</a></li>
+      </ul>
+    </li>
+    <li><a href="#built-ins">Built-ins</a>
+      <ul>
+        <li><a href="#builtinsadd">builtins.add</a></li>
+        <li><a href="#builtinsadderrorcontext">builtins.addErrorContext</a></li>
+        <li><a href="#builtinsall">builtins.all</a></li>
+        <li><a href="#builtinsany">builtins.any</a></li>
+        <li><a href="#builtinsappendcontext">builtins.appendContext</a></li>
+        <li><a href="#builtinsattrnames">builtins.attrNames</a></li>
+        <li><a href="#builtinsattrvalues">builtins.attrValues</a></li>
+        <li><a href="#builtinsbitand">builtins.bitAnd</a></li>
+        <li><a href="#builtinsbitor">builtins.bitOr</a></li>
+        <li><a href="#builtinsbitxor">builtins.bitXor</a></li>
+        <li><a href="#builtinsbuiltins">builtins.builtins</a></li>
+        <li><a href="#builtinscatattrs">builtins.catAttrs</a></li>
+        <li><a href="#builtinsceil">builtins.ceil</a></li>
+        <li><a href="#builtinscompareversions">builtins.compareVersions</a></li>
+        <li><a href="#builtinsconcatlists">builtins.concatLists</a></li>
+        <li><a href="#builtinsconcatmap">builtins.concatMap</a></li>
+        <li><a href="#builtinsconcatstringssep">builtins.concatStringsSep</a></li>
+        <li><a href="#builtinscurrentsystem">builtins.currentSystem</a></li>
+        <li><a href="#builtinscurrenttime">builtins.currentTime</a></li>
+        <li><a href="#builtinsseq">builtins.seq</a></li>
+        <li><a href="#builtinsdeepseq">builtins.deepSeq</a></li>
+        <li><a href="#builtinsdiv">builtins.div</a></li>
+        <li><a href="#builtinselem">builtins.elem</a></li>
+        <li><a href="#builtinselemat">builtins.elemAt</a></li>
+        <li><a href="#builtinsfetchurl">builtins.fetchurl</a></li>
+        <li><a href="#builtinsfilter">builtins.filter</a></li>
+        <li><a href="#builtinsfiltersource">builtins.filterSource</a></li>
+        <li><a href="#builtinsfindfile">builtins.findFile</a></li>
+        <li><a href="#builtinsfloor">builtins.floor</a></li>
+        <li><a href="#builtinsfoldl">builtins.foldl'</a></li>
+        <li><a href="#builtinsfromjson">builtins.fromJSON</a></li>
+        <li><a href="#builtinsfunctionargs">builtins.functionArgs</a></li>
+        <li><a href="#builtinsgenlist">builtins.genList</a></li>
+        <li><a href="#builtinsgenericclosure">builtins.genericClosure</a></li>
+        <li><a href="#builtinsgetattr">builtins.getAttr</a></li>
+        <li><a href="#builtinsgetcontext">builtins.getContext</a></li>
+        <li><a href="#builtinsgetenv-1">builtins.getEnv</a></li>
+        <li><a href="#builtinsgetflake">builtins.getFlake</a></li>
+        <li><a href="#builtinsgroupby">builtins.groupBy</a></li>
+        <li><a href="#builtinshasattr">builtins.hasAttr</a></li>
+        <li><a href="#builtinshascontext">builtins.hasContext</a></li>
+        <li><a href="#builtinshashfile">builtins.hashFile</a></li>
+        <li><a href="#builtinshashstring">builtins.hashString</a></li>
+        <li><a href="#builtinshead">builtins.head</a></li>
+        <li><a href="#builtinsintersectattrs">builtins.intersectAttrs</a></li>
+        <li><a href="#builtinsisattrs">builtins.isAttrs</a></li>
+        <li><a href="#builtinsisbool">builtins.isBool</a></li>
+        <li><a href="#builtinsisfloat">builtins.isFloat</a></li>
+        <li><a href="#builtinsisfunction">builtins.isFunction</a></li>
+        <li><a href="#builtinsisint">builtins.isInt</a></li>
+        <li><a href="#builtinsislist">builtins.isList</a></li>
+        <li><a href="#builtinsispath">builtins.isPath</a></li>
+        <li><a href="#builtinsisstring">builtins.isString</a></li>
+        <li><a href="#builtinslangversion">builtins.langVersion</a></li>
+        <li><a href="#builtinslength">builtins.length</a></li>
+        <li><a href="#builtinslessthan">builtins.lessThan</a></li>
+        <li><a href="#builtinslisttoattrs">builtins.listToAttrs</a></li>
+        <li><a href="#builtinsmapattrs">builtins.mapAttrs</a></li>
+        <li><a href="#builtinsmatch">builtins.match</a></li>
+        <li><a href="#builtinsmul">builtins.mul</a></li>
+        <li><a href="#builtinsnixpath">builtins.nixPath</a></li>
+        <li><a href="#builtinsnixversion">builtins.nixVersion</a></li>
+        <li><a href="#builtinsparsedrvname">builtins.parseDrvName</a></li>
+        <li><a href="#builtinspartition">builtins.partition</a></li>
+        <li><a href="#builtinspath">builtins.path</a></li>
+        <li><a href="#builtinspathexists">builtins.pathExists</a></li>
+        <li><a href="#builtinsreaddir">builtins.readDir</a></li>
+        <li><a href="#builtinsreadfile">builtins.readFile</a></li>
+        <li><a href="#builtinsreplacestrings">builtins.replaceStrings</a></li>
+        <li><a href="#builtinssort">builtins.sort</a></li>
+        <li><a href="#builtinssplit">builtins.split</a></li>
+        <li><a href="#builtinssplitversion">builtins.splitVersion</a></li>
+        <li><a href="#builtinsstoredir">builtins.storeDir</a></li>
+        <li><a href="#builtinsstorepath">builtins.storePath</a></li>
+        <li><a href="#builtinsstringlength">builtins.stringLength</a></li>
+        <li><a href="#builtinssub">builtins.sub</a></li>
+        <li><a href="#builtinssubstring">builtins.substring</a></li>
+        <li><a href="#builtinstail">builtins.tail</a></li>
+        <li><a href="#builtinstofile-1">builtins.toFile</a></li>
+        <li><a href="#builtinstojson">builtins.toJSON</a></li>
+        <li><a href="#builtinstopath">builtins.toPath</a></li>
+        <li><a href="#builtinstoxml">builtins.toXML</a></li>
+        <li><a href="#builtinstraceverbose">builtins.traceVerbose</a></li>
+        <li><a href="#builtinstryeval">builtins.tryEval</a></li>
+        <li><a href="#builtinstypeof">builtins.typeOf</a></li>
+        <li><a href="#builtinsunsafediscardoutputdependency">builtins.unsafeDiscardOutputDependency</a></li>
+        <li><a href="#builtinsunsafediscardstringcontext">builtins.unsafeDiscardStringContext</a></li>
+        <li><a href="#builtinsunsafegetattrpos">builtins.unsafeGetAttrPos</a></li>
+        <li><a href="#builtinszipattrswith">builtins.zipAttrsWith</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

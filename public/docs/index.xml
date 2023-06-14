@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Docs on nojs.de</title>
+    <link>https://nojs.de/docs/</link>
+    <description>Recent content in Docs on nojs.de</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>de-de</language><atom:link href="https://nojs.de/docs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Negation in Haskell Und Purescript</title>
+      <link>https://nojs.de/docs/weblog/2023-02-17/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nojs.de/docs/weblog/2023-02-17/</guid>
+      <description>2023-02-17
+Negation in Haskell und Purescript # Haskell fetzt! Allerdings ist Haskell in seiner Nische (rein funktionale ML-Sprachen) längst nicht mehr allein. Die moderneren Abkömmlinge dieser Familie bringen hier und da interessante Verbesserungen mit. Ein schönes Beispiel dafür ist die not Funktion in Purescript.
+Werte negieren # In Haskell negiert not den Wert eines boolschen Ausdrucks:
+-- Haskell GHCi Session ​ &amp;gt; not True False ​ &amp;gt; not False True In Purescript gilt das gleiche:</description>
+    </item>
+    
+    <item>
+      <title>Closures</title>
+      <link>https://nojs.de/docs/weblog/2023-01-18/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nojs.de/docs/weblog/2023-01-18/</guid>
+      <description>2023-01-18
+Closures # Ich spiele gerade ein bisschen mit Go herum, weil ich mich aus meiner funktionalen Ecke heraustrauen und etwas mehr mit imperativen, C-artigen Sprachen befassen möchte. Rust hätte mich auch interessiert, scheint aber ein Fass ohne Boden zu sein. Go ist modern, trotzdem stabil, recht kompakt und weitverbreitet. Die Liste der großen und populären Softwareprojekte, die auf Go setzen, ist beachtlich.
+In der Go-Tour gibt es einen Abschnitt zu Closures.</description>
+    </item>
+    
+    <item>
+      <title>Trial Beim MC Post Leipzig</title>
+      <link>https://nojs.de/docs/weblog/2022-12-02/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nojs.de/docs/weblog/2022-12-02/</guid>
+      <description>2022-12-02
+Trial Beim MC Post Leipzig # In meiner Jugend bin ich wettkampforientiert Fahrrad-Trial gefahren. Einige Jahre lang war dieser Sport gewissermaßen meine Raison d’être. Dann hat für mich das echte Leben begonnen: Abitur, Studium, Freundin, WG-Leben und eine chaotische Suche nach meinem Platz in dieser Welt. Jetzt ist es vielleicht achtzehn Jahre oder länger her, dass ich den Trial-Sport aufgegeben habe. Irgendwie war damals die Luft raus. Aber in den darauffolgenden Jahren habe ich etwas so körperlich intensives und viszeral sinnstiftendes wirklich sehr sehr vermisst in meinem Leben.</description>
+    </item>
+    
+    <item>
+      <title>Nix Expression Language</title>
+      <link>https://nojs.de/docs/weblog/2022-12-01/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nojs.de/docs/weblog/2022-12-01/</guid>
+      <description>2022-12-01
+Nix Expression Language # Ich erkunde die Nix Expression Language. Mein Startpunkt ist https://learnxinyminutes.com/docs/nix/. Sehr hilfreich ist auch die Dokumentation, welche über die Nix Repl verfügbar ist.
+Auswertung # Die auszuwertenden Ausdrücke schreibe ich in eine Datei scratch.nix. Die Auswertung erfolgt so:
+$ nix-instantiate --eval scratch.nix Für mehr Komfort kann man inotifywait benutzen um die Auswertung jedesmal anzustoßen wenn die Datei scratch.nix gespeichert wird:
+$ while true inotifywait -q -e modify scratch.</description>
+    </item>
+    
+    <item>
+      <title>Digital Gardening</title>
+      <link>https://nojs.de/docs/weblog/2022-11-30/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://nojs.de/docs/weblog/2022-11-30/</guid>
+      <description>2022-11-30
+Digital Gardening # Online kursierte vor einiger Zeit unter dem Schlagwort Digital Gardening eine alternative Vision für das Web jenseits des sequentiellen Publizierens à la Twitter, Instagram, Weblog und so weiter. Statt fertige, datierte Inhalte online zu stellen und Hot Takes in den Socials zu posten, können wir im Web Wissensammlungen anfertigen: allgemein oder thematisch, lose oder strukturiert, allein oder kollaborativ. Die Möglichkeiten sind zahlreich und es gibt dabei keinen Zwang zur Tagesaktualität und Reichweite.</description>
+    </item>
+    
+  </channel>
+</rss>
