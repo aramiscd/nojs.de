@@ -1,0 +1,594 @@
+<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ADTs, GADTs, Typklassen - Aramís Concepción Durán</title><meta name="generator" content="Publii Open-Source CMS for Static Site"><link rel="canonical" href="https://nojs.de/adts-gadts-typklassen/"><link rel="alternate" type="application/atom+xml" href="https://nojs.de/feed.xml" title="Aramís Concepción Durán - RSS"><link rel="alternate" type="application/json" href="https://nojs.de/feed.json" title="Aramís Concepción Durán - JSON"><meta property="og:title" content="ADTs, GADTs, Typklassen"><meta property="og:site_name" content="Aramís Concepción Durán"><meta property="og:description" content=""><meta property="og:url" content="https://nojs.de/adts-gadts-typklassen/"><meta property="og:type" content="article"><link rel="stylesheet" href="https://nojs.de/assets/css/style.css?v=11bee19e86e8eda2cf9a60efd975666d"><script type="application/ld+json">{"@context":"http://schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https://nojs.de/adts-gadts-typklassen/"},"headline":"ADTs, GADTs, Typklassen","datePublished":"2023-07-07T12:42+02:00","dateModified":"2025-04-06T12:43+02:00","description":"","author":{"@type":"Person","name":"Aramís Concepción Durán","url":"https://nojs.de/authors/aramis-concepcion-duran/"},"publisher":{"@type":"Organization","name":"Aramís Concepción Durán"}}</script><noscript><style>img[loading] {
+                    opacity: 1;
+                }</style></noscript></head><body class="post-template"><header class="top js-header"><a class="logo" href="https://nojs.de/">Aramís Concepción Durán</a></header><main class="post"><article class="content"><div class="hero hero--noimage"><header class="hero__content"><div class="wrapper"><h1>ADTs, GADTs, Typklassen</h1><div class="feed__meta content__meta"><time datetime="2023-07-07T12:42" class="feed__date">2023-07-07</time></div></div></header></div><div class="entry-wrapper content__entry"><p>Ich habe vor Kurzem <em>funktionale Abhängigkeiten</em> kennengelernt und hatte gleich den Impuls, darüber zu schreiben. Das ist eine gute Gelegenheit, um etwas ausführlicher auf Konzepte der Typebene in Sprachen wie Haskell, Purescript, Elm und Ocaml einzugehen.</p><h2 id="einfache-datentypen">Einfache Datentypen</h2><p>Die meisten Sprachen bringen einen Vorrat an einfachen Datentypen mit: numerische Datentypen für ganze Zahlen und Gleitkommazahlen, Datentypen für einzelne Buchstaben und andere Schriftzeichen, einen Datentyp mit den zwei Wahrheitswerten “falsch” und “wahr”.</p><p>In den Details gibt es große Unterschiede zwischen den Sprachen, je nachdem, wo sie ihre Schwerpunkte setzen und welche Form der Programmierung sie unterstützen. Beispielsweise hat C keinen speziellen Datentyp für Wahrheitswerte, Python und Javascript unterscheiden nicht streng zwischen einzelnen Schriftzeichen und Zeichenketten, Javascript unterscheidet nicht zwischen ganzen Zahlen und Gleitkommazahlen, TCL kennt nur Zeichenketten, …</p><p>Ein paar einfache Datentypen in Haskell:</p><ul><li><code>Int</code>: ganze Zahlen wie <code>-3</code>, <code>0</code>, <code>123</code>, <code>999999999</code>, …</li><li><code>Float</code>: Gleitkommazahlen wie <code>-123.45</code>, <code>1.0</code>, <code>3.141592653</code>, …</li><li><code>Char</code>: Zeichen wie <code>&#39;a&#39;</code>, <code>&#39;β&#39;</code>, <code>&#39;7&#39;</code>, <code>&#39;+&#39;</code>, <code>&#39;?&#39;</code>, <code>&#39;🙂&#39;</code>, …</li><li><code>Bool</code>: die Wahrheitswerte <code>True</code> und <code>False</code>.</li></ul><h2 id="die-größe-einfacher-datentypen">Die Größe einfacher Datentypen</h2><p>Man kann einen Datentyp auffassen als die Menge seiner Werte. Hier als Beispiel der Datentyp <code>Bool</code> in Mengenschreibweise:</p><pre><code>Bool = { False , True }
+</code></pre><p>Die Größe eines Datentyps ist die Anzahl seiner Werte. Der Datentyp <code>Bool</code> enthält genau zwei Werte. Damit ist seine Größe 2.</p><p>Das gleiche Spiel kann man mit allen einfachen Datentypen spielen. Der kleinste <code>Int</code> Wert auf meinem Rechner ist die ganze Zahl <code>-9223372036854775808</code> und der größte <code>Int</code> Wert die ganze Zahl <code>9223372036854775807</code>. Daraus ergibt sich für den Datentyp <code>Int</code> die Größe <code>2^64</code>.</p><p>Die Größe eines einfachen Datentyps hängt letztlich auch damit zusammen, wie viele Bits mindestens benötigt werden um einen seiner Werte zu codieren. Ein <code>Int</code> Wert ist auf meinem Rechner in 64 Bits codiert. Daraus ergibt sich, dass <code>2^64</code> verschiedene <code>Int</code> Werte codiert werden können. In Sprachen wie C, die dafür gemacht sind, möglichst effiziente Programme zu schreiben und verhältnismäßig nah an der Hardware zu programmieren, bedeutet ein Datentyp im Grunde nicht mehr als die Anzahl von Bits, die einer seiner Werte im Speicher mindestens benötigt.</p><p>Bei <code>Char</code> und <code>Float</code> ist die Berechnung der Größe etwas komplizierter. vom Datentyp <code>Char</code> gibt es insgesamt <code>1114112</code> Werte. Für <code>Float</code> weiß ich es nicht, aber es lässt sich grundsätzlich ausrechnen.</p><h2 id="zusammengesetzte-datentypen">Zusammengesetzte Datentypen</h2><p>Zusammengesetzte Datentypen sind bspw. Arrays, Listen, Strings, Tupel, Records und Structs. Das sind allesamt Datentypen, die sich – wie der Name sagt – auf irgendeine Art aus anderen Datentypen zusammensetzen.</p><p>Ein Record-Datentyp für ganzzahlige Punkte in der Ebene könnte so aussehen:</p><pre><code>-- Purescript
+type Point = { x :: Int , y :: Int }
+</code></pre><p>Ein Tupel-Datentyp für den selben Zweck:</p><pre><code>-- Haskell
+(Int,Int)
+</code></pre><p>Der Record-Datentyp hat den Vorteil, dass die Felder mit x und y bezeichnet sind. Dadurch ist es vermutlich etwas schwerer, sie zu verwechseln. Außerdem können wir direkt über die Feldnamen auf ihre Werte zugreifen. Beim Tupel-Datentyp verlassen wir uns auf die Position der Felder für ihre Unterscheidung. Der Zugriff auf die Felder erfolgt über Pattern-Matching in Case Expressions oder über spezielle Zugriffsfunktionen wie <code>fst</code> und <code>snd</code>. Dafür deckt sich die Tupel-Schreibweise mit der Schreibweise für Punkte in der Ebene, die auch sonst üblich ist. Das sind aber rein ergonomische Unterschiede. Strukturell unterscheiden sich diese beiden Datentypen nicht voneinander: in beiden Fällen besteht ein Punkt aus zwei <code>Int</code> Werten.</p><h2 id="die-größe-zusammengesetzter-datentypen">Die Größe zusammengesetzter Datentypen</h2><p>Es gibt auf meinem Rechner <code>2^64</code> Werte vom Datentyp <code>Int</code>. Für den Datentyp <code>Point</code> ergeben sich damit <code>2^64 * 2^64</code> also <code>2^128</code> Werte. Das selbe gilt für den Datentyp <code>(Int,Int)</code>. Solche Datentypen, die sich aus anderen Datentypen zusammensetzen, so dass ihre Größe das Produkt der Größen der beteiligten Datentypen ist, heißen <strong>Produkttypen</strong>. Array-Datentypen und C-Structs sind auch Produkttypen. Ein bisschen komplexer ist es bei Listen und Strings. Mehr dazu weiter unten.</p><p>In allen herkömmlichen Sprachen kann man Produkttypen definieren, aber oft fehlt die Möglichkeit, <strong>Summentypen</strong> zu definieren. Das sind Datentypen, die sich aus anderen Datentypen zusammensetzen, so dass ihre Größe die Summe der Größen der beteiligten Datentypen ist.</p><h2 id="algebraische-datentypen">Algebraische Datentypen</h2><p>Algebraische Datentypen (ADTs) vereinen in sich Produkttypen und Summentypen: jeder ADT ist eine Summe von Produkten.</p><p><strong>Summen</strong></p><p>Einer der einfachsten ADTs ist der Datentyp <code>Bool</code> in Haskell:</p><pre><code>-- Haskell
+data Bool = False | True
+</code></pre><p><code>False</code> und <code>True</code> sind sogenannte Wertekonstruktoren (oder einfach nur Werte). Den Balken müssen wir lesen wie ein exklusives Oder: jeder Wert vom Datentyp <code>Bool</code> ist entweder <code>False</code> oder <code>True</code>. Andere als diese zwei <code>Bool</code> Werte gibt es nicht.</p><p>ADTs können beliebig viele Wertekonstruktoren haben:</p><pre><code>-- Haskell
+
+data Ampel = Grün | Gelb | Rot
+
+data Käse = Gouda | Cheddar | Brie | Camembert | Gruyère
+
+data T = A | B | C | D | E | F | G | H | I | J | K
+</code></pre><p>Wir können auch einen ADT mit genau einem Wertekonstruktor definieren:</p><pre><code>-- Haskell
+data Eindeutig = Einheit
+</code></pre><p>Hier hat nur der Wert <code>Einheit</code> den Datentyp <code>Eindeutig</code>. Damit besteht zwischen dem Datentyp und dem Wert eine Eins-zu-eins-Beziehung. Sogar der Spezialfall eines ADT mit keinen Wertekonstruktoren ist möglich. Wir geben einfach keine Wertekonstruktoren an:</p><pre><code>-- Haskell
+data Nichts
+</code></pre><p>Damit hat der Datentyp <code>Nichts</code> keine Werte. Wir haben daher keine Möglichkeit, einen Wert vom Datentyp <code>Nichts</code> zu erzeugen oder eine Funktion anzuwenden, die auf <code>Nichts</code> operiert. Leere Datentypen sind nicht nutzlos, aber darauf werde ich hier nicht weiter eingehen. Stattdessen möchte ich auf eine Sache hinweisen, die Verwirrung stiften kann. Betrachte dafür die folgende Typdefinition:</p><pre><code>-- Haskell
+
+data Tasche
+    = Tüte
+    | Beutel
+    | Rucksack
+    | Gürteltasche
+    | Tasche
+</code></pre><p>Hier definieren wir den Datentyp <code>Tasche</code> mit den Werten <code>Tüte</code>, <code>Beutel</code>, <code>Rucksack</code>, <code>Gürteltasche</code> und <code>Tasche</code>. Es sticht ins Auge, dass der Name <code>Tasche</code> zweimal auftaucht: einmal als der Datentyp <code>Tasche</code>, einmal als der Wertekonstruktor <code>Tasche</code>. Für den Compiler ist das kein Problem. Er unterscheidet streng zwischen Datentypen und Wertekonstruktoren und kann sie nicht verwechseln, auch wenn sie den selben Namen haben. Das Beispiel ist zwar an den Haaren herbeigezogen, aber es ist tatsächlich manchmal sinnvoll, einem Datentyp und einem seiner Wertekonstruktoren den selben Namen zu geben. Weiter unten wird uns so etwas begegnen.</p><p><strong>Wertekonstruktoren mit Feldern</strong></p><p>Bisher haben wir einfache Wertekonstruktoren wie <code>False</code>, <code>Gouda</code>, <code>Rucksack</code>, <code>A</code> usw. gesehen. Wertekonstruktoren können aber typisierte Felder haben. Hier ein Beispiel:</p><pre><code>-- Haskell
+data Lampe = Leuchtet Bool
+</code></pre><p>Der Datentyp <code>Lampe</code> hat den Wertekonstruktor <code>Leuchtet</code> mit einem Feld vom Datentyp <code>Bool</code>. Bisher haben wir die Begriffe <em>Wert</em> und <em>Wertekonstruktor</em> als Synonyme behandelt. Das ändert sich sobald Felder ins Spiel kommen. Der Wertekonstruktor <code>Leuchtet</code> ist allein noch kein Wert vom Datentyp <code>Lampe</code>. Wir müssen ihn um einen <code>Bool</code> Wert ergänzen, um einen Wert vom Datentyp <code>Lampe</code> zu erzeugen.</p><pre><code>-- Haskell Repl
+
+&gt; data Lampe = Leuchtet Bool
+
+&gt; :type Leuchtet
+Leuchtet :: Bool -&gt; Lampe
+
+&gt; lampeAn = Leuchtet True
+
+&gt; :type lampeAn
+lampeAn :: Lampe
+</code></pre><p><strong>Produkte</strong></p><p>Wertekonstruktoren können mehr als ein Feld haben. Hier ein Beispiel:</p><pre><code>-- Haskell
+data Datum = Datum Int Int Int  -- Tag Monat Jahr
+</code></pre><p>Der Datentyp <code>Datum</code> hat einen Wertekonstruktor <code>Datum</code> mit drei Feldern vom Datentyp <code>Int</code>. So ein Datentyp entspricht den normalen Produkttypen, die wir oben schon kennengelernt haben.</p><p><strong>Summen von Produkten</strong></p><p>In einem ADT lassen sich Produkte und Summen kombinieren. Hier ein Datentyp mit drei Wertekonstruktoren, die jeweils ein Feld vom Datentyp <code>Bool</code> haben:</p><pre><code>-- Haskell
+data MyType = X Bool | Y Bool | Z Bool
+</code></pre><p>Daraus ergeben sich die folgenden konkreten Werte:</p><ul><li><code>X False</code></li><li><code>X True</code></li><li><code>Y False</code></li><li><code>Y True</code></li><li><code>Z False</code></li><li><code>Z True</code></li></ul><p>Hier ein Datentyp mit fünf Wertekonstruktoren und unterschiedlichen Anzahlen von Feldern:</p><pre><code>-- Haskell
+
+data Zubrot
+    = Käse Bool         -- vegan ja/nein
+    | Wurst Bool        -- vegan ja/nein
+    | Marmelade Int Int -- Frucht- und Zuckergehalt in %
+    | Margarine
+    | Butter
+</code></pre><h2 id="die-größe-algebraischer-datentypen">Die Größe algebraischer Datentypen</h2><p>Die Größe eines ADT ist die Summe der Größen seiner Wertekonstruktoren. Die Größe eines Wertekonstruktors ist das Produkt der Größen seiner Feldtypen. Ein Wertekonstruktor ohne Felder hat die Größe 1. Ein Datentyp ohne Wertekonstruktoren hat die Größe 0.</p><p>Wir berechnen die Größe für ein paar ADTs:</p><pre><code>|Nichts| == 0
+
+|Eindeutig| == |Einheit| == 1
+
+|Bool| == |False| + |True| == 1 + 1 == 2
+
+|Ampel| == |Grün| + |Gelb| + |Rot| == 1 + 1 + 1 == 3
+
+|Lampe| == |Leuchtet Bool| == |Bool| == 2
+
+|Datum| == |Datum Int Int Int|
+        == |Int| * |Int| * |Int|
+        == 3^64 * 3^64 * 3^64
+        == 3^192
+
+|MyType| == |X Bool| + |Y Bool| + |Z Bool|
+         == |Bool| + |Bool| + |Bool|
+         == 2 + 2 + 2
+         == 6
+
+|Zubrot| == |Käse Bool| + |Wurst Bool| + |Marmelade Int Int|
+          + |Margarine| + |Butter|
+         == |Bool| + |Bool| + |Int| * |Int| + 1 + 1
+         == 2 + 2 + 2^64 * 2^64 + 1 + 1
+         == 2^128 + 6
+</code></pre><p>Weiter unten werden wir auch unendlich große ADTs sehen.</p><h2 id="der-mehrwert-algebraischer-datentypen">Der Mehrwert algebraischer Datentypen</h2><p>Mit ADTs können wir neue Datentypen jeder beliebigen Größe erzeugen und die Datentypen, die wir schon vorliegen haben, sowohl additiv als auch multiplikativ zu neuen Datentypen verknüpfen. Für jede Datenstruktur, die sich so beschreiben lässt, können wir einen ADT definieren. Ich möchte an zwei Beispielen zeigen, welchen Mehrwert das hat.</p><p><strong>Beispiel 1: Verkehrsampel</strong></p><p>Ein Datentyp für die drei Zustände einer aktiven Ampel könnte so definiert sein:</p><pre><code>--Haskell
+data Ampel = Grün | Gelb | Rot
+</code></pre><p>Viele herkömmliche Sprachen scheitern schon daran, einen genau dreiwertigen Datentyp zu erzeugen.</p><p>Wenn wir entscheiden müssen, ob jemand für das Überfahren einer Ampel im Straßenverkehr einen Bußgeldbescheid erhalten soll oder nicht, können wir das wie folgt modellieren:</p><pre><code>-- Haskell
+
+bußgeldbescheid :: Ampel -&gt; Bool
+bußgeldbescheid ampel = case ampel of
+    Grün -&gt; False
+    Gelb -&gt; False
+    Rot -&gt; True
+</code></pre><p>Hier ist <code>bußgeldbescheid</code> eine Funktion von <code>Ampel</code> nach <code>Bool</code>. Die drei Werte des Datentyps <code>Ampel</code> entsprechen den drei Zuständen einer aktiven Ampel. Mit anderen als diesen drei Werten müssen wir uns beim Implementieren nicht auseinandersetzen. Stattdessen können wir uns voll und ganz auf das Wesentliche konzentrieren: die Zuordnung der tatsächlichen Ampelzustände nach <code>Bool</code>. Auch beim Verwenden der Funktion ohne Kenntnis ihrer Implementierung müssen wir uns keine Gedanken über andere als diese drei Werte machen, denn die Funktion akzeptiert nur diese drei und der Compiler sichert das für uns ab.</p><p>Ganz anders sieht das aus, wenn wir bei der Modellierung des selben Sachverhaltes ohne ADTs bzw. ohne Summentypen auskommen müssen. Wir sind dann gezwungen, auf bestehende Datentypen zurückzugreifen. Zum Beispiel so:</p><pre><code>-- Haskell
+
+grün = 0
+gelb = 1
+rot = 2
+
+bußgeldbescheid :: Int -&gt; Bool
+bußgeldbescheid ampel =
+    ampel /= grün &amp;&amp; ampel /= gelb
+</code></pre><p>Man kann so programmieren, aber die Funktion hat jetzt für den Compiler einen Definitionsbereich aus <code>2^64</code> Werten. Drei davon kümmern uns: nämlich <code>0</code>, <code>1</code> und <code>2</code> bzw. <code>grün</code>, <code>gelb</code> und <code>rot</code>. Die übrigen 18446744073709551613 Werte sind für den modellierten Sachverhalt überflüssig. Aber können wir uns darauf verlassen, dass kein anderer Wert an die Funktion übergeben wird? So wie sie jetzt implementiert ist, werden die 18446744073709551613 überflüssigen Werte auf <code>True</code> abgebildet. Das könnte zur Folge haben, dass Bußgeldbescheide an Personen versendet werden, die nicht bei Rot gefahren sind, weil jemand den Aufruf der Funktion vermasselt hat, oder weil jemand die Dokumentation nicht richtig gelesen hat, oder weil die Implementierung sich zwischenzeitlich geändert hat: bei einem Refactoring wurde der Rückgabewert für die 18446744073709551613 überflüssigen Werte verändert und schon tritt ein Fehler auf, den es vorher nicht gab.</p><p>Hier liegt ein Fehlerpotenzial vor, das es nicht gibt wenn man ADTs verwendet um die Definitions- und Wertebereiche der Funktionen, Prozeduren und Methoden so festzulegen, dass sie genau zum modellierten Sachverhalt passen.</p><p><strong>Beispiel 2: unbekanntes Alter</strong></p><p>Stellen wir uns vor, dass wir einen Datentyp für das Alter von Personen als ganze Zahl in Jahren benötigen. Es liegt auf der Hand, dafür den Datentyp <code>Int</code> zu verwenden. Noch besser wäre ein Datentyp für natürliche Zahlen, aber darum kümmern wir uns jetzt nicht.</p><p>Komplizierter ist es, wenn wir berücksichtigen müssen, dass das Alter einer Person unbekannt sein kann. Wie bilden wir das ab? Ich zeige erst, wie hier ein ADT helfen kann. Dann kritisiere ich, wie das in Sprachen ohne ADTs gelöst wird. Also, hier mein Vorschlag für einen passenden Datentyp:</p><pre><code>-- Haskell
+data Alter = AlterUnbekannt | Alter Int
+</code></pre><p>Ein Wert vom Datentyp <code>Alter</code> ist entweder <code>AlterUnbekannt</code> oder <code>Alter</code> mit einem <code>Int</code> Feld. Stellen wir uns die drei Personen Marit, Marta und Max vor. Marit ist 30, Marta ist 11 und von Max kennen wir das Alter nicht.</p><pre><code>-- Haskell
+
+maritAlter :: Alter
+maritAlter = Alter 30
+
+martaAlter :: Alter
+martaAlter = Alter 11
+
+maxAlter :: Alter
+maxAlter = AlterUnbekannt
+</code></pre><p>Auf diese Weise unterscheiden wir sauber zwischen einem bekannten und einem unbekannten Alter. Eine Funktion, die Altersklassen bestimmt, könnte so aussehen:</p><pre><code>-- Haskell
+
+data Altersklasse
+    = Minderjährig
+    | Volljährig
+    | AltersklasseUnbekannt
+
+altersklasse :: Alter -&gt; Altersklasse
+altersklasse Alter = case alter of
+    Alter n -&gt; if n &lt; 18 then Minderjährig else Volljährig
+    AlterUnbekannt -&gt; AltersklasseUnbekannt
+</code></pre><p>Schauen wir uns die Altersklassen von Marit, Marta und Max an:</p><pre><code>-- Haskell Repl
+
+&gt; altersklasse maritAlter
+Volljährig
+
+&gt; altersklasse martaAlter
+Minderjährig
+
+&gt; altersklasse maxAlter
+AltersklasseUnbekannt
+</code></pre><p>Dadurch, dass unser Datentyp <code>Alter</code> ganz ausdrücklich auch den Wert <code>AlterUnbekannt</code> hat, müssten wir uns schon besondere Mühe geben, um diesen Fall bei der Berechnung der Altersklasse unter den Tisch fallen zu lassen.</p><p>Aber wie würden wir das ohne ADTs modellieren? Hier noch mal der zu modellierende Sachverhalt: wir müssen das Alter von Personen codieren und dabei berücksichtigen, dass ein Alter unbekannt sein kann. In Sprachen ohne ADTs gibt es für die Codierung solcher Sonderfälle zwei verschiedene Lösungsansätze.</p><p><strong>Ansatz 1 ohne ADTs: Numerische Fehlercodes</strong></p><p>Bilde Sonderfälle wie Fehlercodes auf Werte ab, die zum selben Datentyp gehören wie die modellierte Größe, aber offensichtlich kein Wert der modellierten Größe sind. Das setzt voraus, dass der Datentyp zusätzlichen Platz dafür bietet. Ein gutes Beispiel dafür ist die Java String-Methode <code>indexOf</code>, die man verwendet um nach Substrings zu suchen. Wenn der Substring gefunden wurde, wertet <code>indexOf</code> zu dem Index aus, bei dem der Substring beginnt. Wenn der Substring nicht gefunden wurde, wertet <code>indexOf</code> zu <code>-1</code> aus:</p><pre><code>// Java
+&quot;abc&quot;.indexof(&quot;c&quot;)  // Wertet aus zu: 2
+&quot;abc&quot;.indexOf(&quot;d&quot;)  // Wertet aus zu: -1 
+</code></pre><p>Die Idee dahinter ist, dass Indizes natürliche Zahlen sind und dass daher mit dem Rückgabewert <code>-1</code> offensichtlich kein Index gemeint sein kann. In unserem Fall könnte der Ansatz so aussehen:</p><pre><code>-- Haskell
+
+maritAlter :: Int
+maritAlter = 30
+
+martaAlter :: Int
+martaAlter = 11
+
+maxAlter :: Int
+maxAlter = -1
+</code></pre><p>Wenn wir jetzt die Altersklassen berechnen und dabei nicht genau aufpassen, könnte die folgende Funktion zustande kommen:</p><pre><code>-- Haskell
+
+data Altersklasse = Minderjährig | Volljährig
+
+altersklasse :: Int -&gt;  Altersklasse
+altersklasse alter =
+    if alter &lt; 18 then Minderjährig else Volljährig
+</code></pre><p>Die Altersklassen für Marit, Marta und Max sehen dann wie folgt aus:</p><pre><code>-- Haskell Repl
+
+&gt; altersklasse maritAlter
+Volljährig
+
+&gt; altersklasse martaAlter
+Minderjährig
+
+&gt; altersklasse maxAlter
+Minderjährig
+</code></pre><p>Das ist natürlich Murks. Wir wissen gar nicht, ob Max minderjährig ist, weil wir sein Alter nicht kennen. Der Fehler ist aber nachvollziehbar: bei der Implementierung von <code>altersklasse</code> legen wir fest, dass Personen minderjährig sind wenn ihr Alter in Jahren kleiner als 18 ist, denn genau so ist Minderjährigkeit definiert. Um den Fehler zu vermeiden, müssen wir wissen, dass hier auch negative Zahlen zu berücksichtigen sind und dass <code>-1</code> das Fehlen der Altersinformation repräsentiert:</p><pre><code>-- Haskell
+
+data Altersklasse
+    = Minderjährig
+    | Volljährig
+    | AltersklasseUnbekannt
+
+altersklasse :: Int -&gt;  Altersklasse
+altersklasse alter =
+    if alter &lt; 0 then AltersklasseUnbekannt
+    else if alter &lt; 18 then Minderjährig
+    else Volljährig
+</code></pre><p>Wir gehen hier noch einen Schritt weiter und bilden alle negativen Zahlen auf <code>AltersklasseUnbekannt</code> ab. Dadurch sind wir schon auf der sicheren Seite wenn weitere Fehlercodes dazukommen. Die Altersklassen für Marit, Marta und Max stimmen jetzt wieder:</p><pre><code>-- Haskell Repl
+
+&gt; altersklasse maritAlter
+Volljährig
+
+&gt; altersklasse martaAlter
+Minderjährig
+
+&gt; altersklasse maxAlter
+AltersklasseUnbekannt
+</code></pre><p>Javas <code>indexOf</code> Methode hat die gleiche Schwäche. Wenn wir bspw. in vielen Strings den gleichen Substring suchen, um seinen durchschnittlichen Index zu berechnen, dürfen wir nicht vergessen, den Wert <code>-1</code> gesondert zu verarbeiten. Sonst berechnen wir ein falsches Ergebnis. Besser ist es, wenn wir zwischen der erfolgreichen und der gescheiterten Suche so unterscheiden, dass auch der Compiler diese Unterscheidung absichert. Andernfalls liegt die volle Verantwortung für diese Unterscheidung bei der Person, die programmiert.</p><p><strong>Ansatz 2 ohne ADTs: Nullreferenzen</strong></p><p>Verwende Referenzdatentypen und stelle fehlende Werte dar als Nullreferenzen. Ein gutes Beispiel dafür ist die Prozedur <code>strstr</code> aus der C-Standard-Bibliothek:</p><pre><code>// C
+char *result = strstr(myString, mySubstr);
+</code></pre><p>Wenn <code>mySubstr</code> in <code>myString</code> enthalten ist, dann enthält <code>result</code> jetzt eine Referenz auf die Speicheradresse der Anfangsposition von <code>mySubstr</code> innerhalb von <code>myString</code>. Andernfalls enthält <code>result</code> jetzt die Nullreferenz <code>NULL</code>.</p><p>In Sprachen, die es erlauben, Nullreferenzen so zu verwenden, muss man höllisch aufpassen: es kann passieren, dass man glaubt, einen Wert zu verarbeiten obwohl man eine Nullreferenz verarbeitet. Das führt leicht zu Laufzeitfehlern. In Haskell, Purescript, etc. kann ich das nicht demonstrieren, weil es in diesen Sprachen keine Referenzdatentypen und keine Nullreferenzen gibt. Deswegen hier ein bisschen Java Code:</p><pre><code>// Main.java
+
+class Alter {
+    int wert;
+    public Alter(int wert) {
+        this.wert = wert;
+    }
+    public int get() {
+        return this.wert;
+    }
+}
+class Person {
+    public Alter alter;
+    enum Altersklasse { minderjährig, volljährig }
+    public Altersklasse altersklasse() {
+        if (this.alter.get() &lt; 18) {
+            return Altersklasse.minderjährig;
+        } else {
+            return Altersklasse.volljährig;
+        }
+    }
+}
+class Main {
+    public static void main(String[] args) {
+        Person marit = new Person();
+        Person marta = new Person();
+        Person max = new Person();
+
+        marit.alter = new Alter(30);
+        marta.alter = new Alter(11);
+
+        System.out.println(marit.altersklasse());
+        System.out.println(marta.altersklasse());
+        System.out.println(max.altersklasse());
+    }
+}
+</code></pre><p>Ich wickle das Alter einer Person hier in einen Datentyp <code>Alter</code> ein, weil Basisdatentypen wie <code>int</code> in Java keine Referenzdatentypen sind. Das passiert wenn wir das Programm compilieren und ausführen:</p><pre><code>$ javac Main.java
+$ java Main
+volljährig
+minderjährig
+Exception in thread &quot;main&quot; java.lang.NullPointerException
+        at Person.altersklasse(Main.java:21)
+        at Main.main(Main.java:14)
+</code></pre><p>Wir haben für Max kein Alter festgelegt. Sobald wir seine Altersklasse abrufen, terminiert das Programm mit einer <code>NullPointerException</code>. Selbstverständlich lässt sich das beheben, indem wir die Aufzählung <code>Altersklasse</code> und die Methode <code>altersklasse</code> anpassen, so wie wir es auch weiter oben gemacht haben. Die volle Verantwortung dafür, solche Laufzeitfehler zu vermeiden, liegt hier wieder bei der Person, die programmiert.</p><p>Welcher dieser beiden Ansätze ist besser? Das kommt darauf an, ob uns die Vermeidung von Laufzeitfehlern oder die Vermeidung falscher Ergebnisse wichtiger ist. Bei der Haskell-Funktion <code>altersklasse :: Alter -&gt; Altersklasse</code>, mit der wir begonnen haben, erübrigt sich diese Abwägung: Nullreferenzen gibt es nicht und um das numerische Alter mit einem Fehlercode zu ergänzen, führen wir einen neuen Datentyp ein, der durch zwei Wertekonstruktoren sauber unterscheidet zwischen einem bekannten und einem unbekannten Alter.</p><h2 id="parametrische-algebraische-datentypen">Parametrische algebraische Datentypen</h2><p>Parametriche ADTs sind ADTs, die in ihrer Definition einen sogenannten <em>Typparameter</em> enthalten. Das ist ein Platzhalter, der durch einen konkreten Datentyp ersetzt werden muss, damit aus dem parametrischen ADT ein konkreter Datentyp wird. Solche Datentypen, die erst noch konkretisiert werden müssen, nennt man auch <em>generische Datentypen</em>. Um das Konzept zu demonstrieren, schauen wir uns noch mal den oben definierten Datentyp <code>Alter</code> an. Wir steigen an der Stelle von Haskell auf Purescript um, damit wir weiter unten Record-Literale verwenden können:</p><pre><code>-- Purescript
+data Alter = AlterUnbekannt | Alter Int
+</code></pre><p>Wir haben diesen Datentyp eingeführt, um zu modellieren, dass das Alter einer Person manchmal bekannt und manchmal unbekannt ist. Aber dieses Problem kann auch bei anderen Daten auftreten. Wir könnten dafür jedes mal einen spezifischen Datentyp einführen:</p><pre><code>-- Purescript
+data Name = NameUnbekannt | Name String
+data Alter = AlterUnbekannt | Alter Int
+data Wohnort = WohnortUnbekannt | Wohnort String
+data Beruf = BerufUnbekannt | Beruf String
+...
+</code></pre><p>Ein beispielhafter Record für Marta mit diesen Datentypen könnte so aussehen:</p><pre><code>-- Purescript
+marta =
+    { name : Name &quot;Marta&quot;
+    , alter : Alter 11
+    , wohnort : WohnortUnbekannt
+    , beruf : BerufUnbekannt
+    }
+</code></pre><p>Wir müssen aber nicht jeden Datentyp separat auf diese Weise erweitern. Stattdessen können wir einen generischen Datentyp festlegen, der jeden existierenden Datentyp um die Möglichkeit eines fehlenden Wertes erweitert:</p><pre><code>-- Purescript
+data Vielleicht a = Unbekannt | Wert a
+</code></pre><p>Damit können wir jeden Datentyp so erweitern, dass ein Wert dieses Typs entweder vorhanden oder abhanden ist. Wenn wir das Alter einer Person kennen, sieht das so aus:</p><pre><code>-- Purescript
+alter :: Vielleicht Int
+alter = Wert 23
+</code></pre><p>Wenn wir das Alter nicht kennen, sieht das so aus:</p><pre><code>-- Purescript
+alter :: Vielleicht Int
+alter = Unbekannt
+</code></pre><p>Das gleiche Spiel mit dem Wohnort:</p><pre><code>-- Purescript
+wohnort :: Vielleicht String
+wohnort = Wert &quot;Leipzig&quot;
+</code></pre><p>Oder wenn der Wohnort unbekannt ist:</p><pre><code>-- Purescript
+wohnort :: Vielleicht String
+wohnort = Unbekannt
+</code></pre><p>Beachte, dass das Alter den Datentyp <code>Int</code> hat aber der Wohnort den Datentyp <code>String</code>. Trotzdem konnten wir in beiden Fällen den generischen Datentyp <code>Vielleicht a</code> einsetzen. Wir haben damit den Datentyp <code>Int</code> auf <code>Vielleicht Int</code> und den Datentyp <code>String</code> auf <code>Vielleicht String</code> erweitert. Ein ganzer Record für Marta könnte so aussehen:</p><pre><code>-- Purescript
+
+marta =
+    { name : Wert &quot;Marta&quot;
+    , alter : Wert 11
+    , wohnort : Wert &quot;Leipzig&quot;
+    , beruf : Wert &quot;Schülerin&quot;
+    }
+</code></pre><p>Damit sind die vier spezifischen Datentypen, die wir oben definiert haben, überflüssig, weil wir sie ersetzen konnten durch einen einzigen generischen Datentyp, der die selbe Aufgabe erfüllt.</p><p>In der Praxis würde man einen Datentyp wie <code>Vielleicht a</code> nicht definieren, sondern den Datentyp <code>Maybe a</code> verwenden, der genau für diesen Zweck schon vordefiniert ist und die selbe Struktur hat. Zum Vergleich hier die beiden Datentypen:</p><pre><code>-- Purescript
+data Vielleicht a = Unbekannt | Wert a
+data Maybe a = Nothing | Just a
+</code></pre><p>Es gehört zum guten Programmierstil, die vordefinierten Datentypen zu verwenden wenn die Struktur passt. Das erhöht die Lesbarkeit. Es kann zwar manchmal sinnvoll sein, trotzdem eigene Datentypen zu verwenden, um zu verdeutlichen, worum es geht, aber je mehr man beim Lesen von Code schon kennt, desto verständlicher ist der Code.</p><h2 id="unendlich-große-datentypen">Unendlich große Datentypen</h2><p>Bisher haben wir nur ADTs mit endlicher Größe betrachtet. Es gibt aber auch ADTs, die unendlich groß sind. Das ist zum Beispiel der Fall bei ADTs, die rekursiv über sich selbst definiert sind. Ein gutes Beispiel dafür sind verkettete Listen:</p><pre><code>-- Purescript
+List a = Nil | Cons a ( List a )
+</code></pre><p><code>Nil</code> ist der gebräuchliche Name für die leere Liste. Das hat historische Gründe. <code>Cons</code> nimmt einen Wert und eine Liste und konstruiert daraus wieder eine Liste. Die Idee dabei ist, dass man mit der leeren Liste beginnt und von ihr ausgehend <code>Cons</code> verwendet und durch das sukzessive Hinzufügen weiterer Werte immer größere Listen konstruiert. Hier demonstrieren wir schrittweise den Aufbau einer Liste mit den ersten Ziffern der Kreiszahl Pi 3,1415…</p><pre><code>-- Purescript
+
+list0 = Nil
+list1 = Cons 5 Nil
+list2 = Cons 1 ( Cons 5 Nil )
+list3 = Cons 4 ( Cons 1 ( Cons 5 Nil ) )
+list4 = Cons 1 ( Cons 4 ( Cons 1 ( Cons 5 Nil ) ) )
+list5 = Cons 3 ( Cons 1 ( Cons 4 ( Cons 1 ( Cons 5 Nil ) ) ) )
+</code></pre><p>Haskell unterstützt für verkettete Listen eine kompaktere und freundlichere Syntax, mit der man z.B. <code>list5</code> schreiben kann als <code>[3,1,4,1,5]</code>. Aber letztlich erfolgt die Konstruktion von verketteten Listen auch in Haskell genau so wie oben beschrieben.</p><p><code>List a</code> ist generisch (bzw. parametrisch). Diese Beispiele haben allesamt den Datentyp <code>List Int</code>. Natürlich können wir auch Listen von Bools oder Floats oder Strings etc. konstruieren. Die Werte einer Liste müssen aber allesamt den selben Datentyp haben.</p><p>Aus der Definition des generischen Listendatentyps folgt, dass man aus einer Liste der Größe <code>n</code> immer eine Liste der Größe <code>n+1</code> konstruieren kann indem man noch ein Element hinzufügt. Daraus ergibt sich, dass Listendatentypen unendlich groß sind. Der Datentyp <code>String</code> ist in Standard-Haskell ein Typalias für <code>List Char</code> und damit auch unendlich groß. In Purescript werden Strings wahrscheinlich irgendwie auf Javascript-Strings abgebildet. Auch davon gibt es unendlich viele, da man sie durch Verkettung beliebig verlängern kann.</p><h2 id="einfache-datentypen-sind-adts">Einfache Datentypen sind ADTs</h2><p>Ich habe es hier noch nicht erwähnt, aber bestimmt ist es schon aufgefallen: die Namen von Datentypen und von Wertekonstruktoren in einer Typdefinition mit dem <code>data</code> Schlüsselwort beginnen in Haskell und in Purescript immer mit einem Großbuchstaben. In Elm ist es auch so, mit dem Unterschied, dass das Schlüsselwort in Elm nicht <code>data</code> sondern <code>type</code> ist.</p><p>Während für den Datentyp <code>Bool</code> mit den Werten <code>False</code> und <code>True</code> in Haskell eine normale Typdefinition <a href="https://hackage.haskell.org/package/ghc-prim-0.10.0/docs/src/GHC.Types.html#Bool">vordefiniert ist</a>, ist der Datentyp <code>Boolean</code> mit den Werten <code>false</code> und <code>true</code> in Purescript in den Compiler integriert. Purescript ist dafür gemacht, nach Javascript zu compilieren. Um die zu überbrückende Kluft zwischen den Purescript-Datentypen und den Javascript-Datentypen, die nach der Compilation übrigbleiben, möglichst klein zu halten, orientieren sich die vordefinierten Datentypen in Purescript an den Datentypen, die auch in Javascript verfügbar sind. Deswegen gibt es in Purescript statt <code>Bool</code> den Datentyp <code>Boolean</code> mit den Werten <code>false</code> und <code>true</code>, die vom Compiler in die gleichnamigen Javascript-Werte <code>false</code> und <code>true</code> übersetzt werden. Das gleiche macht der Purescript-Compiler mit Zahlenliteralen, Arrays und Records.</p><p>Trotz der Sonderbehandlung durch den Compiler, hätte man die Wahrheitswerte auch in Purescript <code>False</code> und <code>True</code> nennen können. Ich vermute, dass man sich bewusst für die Kleinschreibung entschieden hat, um kenntlich zu machen, dass es sich um keine gewöhnlichen Wertekonstruktoren aus einer <code>data</code> Typdefinition handelt.</p><p>Es gibt noch mehr vordefinierte Datentypen – auch in Haskell – deren Werte nicht über eine herkömmliche Typdefinition mit Wertekonstruktoren erzeugt worden sind, sondern auf besondere Weise vom Compiler unterstützt werden. Die numerischen Datentypen sind das beste Beispiel dafür. Eine Sonderbehandlung numerischer Datentypen und Werte durch den Compiler ist schon für die syntaktische Unterstützung der gewöhnlichen Zahlenliterale wie <code>-123.45</code>, <code>0.0</code> und <code>99999</code> nötig, aber auch für die effiziente Arithmetik auf diesen Datentypen.</p><p>In Haskell kommt noch dazu, dass Zahlenliterale wie <code>1</code> und <code>1.0</code> überladen sind. <code>1</code> kann in Haskell sowohl für den <code>Int</code> Wert <code>1</code> als auch für den <code>Float</code> wert <code>1.0</code> stehen. Es kommen sogar noch weitere Datentypen in Frage:</p><pre><code>-- Haskell Repl
+
+&gt; 1 :: Int
+1
+
+&gt; 1 :: Integer
+1
+
+&gt; 1 :: Float
+1.0
+
+&gt; 1 :: Double
+1.0
+
+&gt; import Numeric.Natural
+
+&gt; 1 :: Natural
+1
+</code></pre><p><code>Integer</code> ist ein Datentyp für ganze Zahlen, der beliebig große Zahlen aufnehmen kann, solange der Speicherplatz es zulässt. <code>Natural</code> ist ein Datentyp für natürliche Zahlen. Zahlenliterale in Gleitkommaschreibweise sind in Haskell ebenso überladen:</p><pre><code>-- Haskell Repl
+
+&gt; 1.0 :: Int
+1
+
+&gt; 1.0 :: Integer
+1
+
+&gt; 1.0 :: Float
+1.0
+
+&gt; 1.0 :: Double
+1.0
+
+&gt; import Numeric.Natural
+
+&gt; 1.0 :: Natural
+1
+</code></pre><p>Trotz ihrer Besonderheiten, können wir solche Datentypen auch als ADTs auffassen. Die Wahrheitswerte <code>false</code> und <code>true</code> werden in Purescript zwar klein geschrieben, aber das ist nur Syntax. Davon abgesehen können wir komplett ignorieren, dass der Datentyp <code>Boolean</code> nicht auf einer herkömmlichen <code>data</code> Typdefinition basiert. Es folgt daraus nichts, worauf wir beim Programmieren achtgeben müssten. So ist es auch mit den numerischen Datentypen: Zahlenliterale wie <code>-3.1415</code> und <code>42</code> sind zwar keine gewöhnlichen Wertekonstruktoren, aber wir können jeden numerischen Datentyp auffassen als einen Summentyp mit all seinen Werten als Wertekonstruktoren ohne Typfelder:</p><pre><code>-- Pseudo-Haskell
+data Natural = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | ...
+</code></pre><p>Prinzipiell könnten wir die ganzen numerischen Datentypen und die gesamte Zahlenarithmetik auch aus gewöhnlichen <code>data</code> Typdefinitionen nachbauen. Wir müssen uns dafür nur streng an die Konstruktionsregeln halten. Für natürliche Zahlen sind das die Peano-Axiome. Ein selbstgebauter Datentyp für natürliche Zahlen könnte so aussehen:</p><pre><code>-- Haskell
+
+data Nat = Null | Nachfolger Nat
+
+plus :: Nat -&gt; Nat -&gt; Nat
+plus a b = case a of
+    Nachfolger n -&gt; plus n ( Nachfolger b ) 
+    Null -&gt; b
+
+mal :: Nat -&gt; Nat -&gt; Nat
+mal a b = case a of
+    Null -&gt; Null
+    Nachfolger Null -&gt; b
+    Nachfolger n -&gt; plus b ( mal n b )
+</code></pre><p>Für fast alle praktischen Anwendungen wäre das völlig unbrauchbar. Ohne die spezielle Syntax für Zahlenliterale wäre es sehr sehr umständlich und mühsam, Zahlen aufzuschreiben und zu lesen. Die Zahlenarithmetik wäre damit unendlich langsam. Worum es mir hier geht, ist, dass sich numerische Datentypen, Arrays, Records, Strings usw. zumindest rein formal auch als algebraische Datentypen auffassen lassen. Das verdeutlicht, wie flexibel ADTs sind: jeder Datentyp, der sich als ein Summentyp aus Produkttypen darstellen lässt, kann als ADT beschrieben werden.</p><h2 id="isomorphismen-und-aliase">Isomorphismen und Aliase</h2><p>Bisher haben wir neue Datentypen mit dem <code>data</code> Schlüsselwort definiert. Wir könnten es dabei belassen. Es gibt aber noch zwei weitere Schlüsselwörter, mit denen sich Datentypen definieren lassen: <code>newtype</code> und <code>type</code>.</p><p><strong>Isomorphismen</strong></p><p>Mit dem <code>newtype</code> Schlüsselwort lassen sich neue Datentypen definieren, die genau einen Wertekonstruktor mit genau einem Feld haben. Damit ist <code>newtype</code> auf den ersten Blick überflüssig, denn dasselbe können wir auch mit dem <code>data</code> Schlüsselwort erledigen:</p><pre><code>-- Haskell
+data T1 = K1 Bool
+newtype T2 = K2 Bool
+</code></pre><p>Wenn man dasselbe auch mit dem <code>data</code> Schlüsselwort machen kann, warum gibt es dann für diesen Spezialfall ein zusätzliches Schlüsselwort? Um das beanworten zu können, müssen wir wissen, dass die Verwendung von Datentypen mit gewissen Laufzeitkosten verbunden ist. Beispielsweise einen <code>Int</code> Wert in einen <code>Maybe</code> Kontext zu stecken und an anderer Stelle wieder aus diesem <code>Maybe</code> Kontext zu befreien: das sind Rechenoperationen, die zur Laufzeit des Programms stattfinden und ein kleines bisschen Speicher und Rechenzeit kosten. Wir nehmen das normalerweise gern in Kauf, weil uns ein korrektes Programm ohne Laufzeitfehler in den meisten Fällen viel wichtiger ist als ein Programm, das möglichst schnell und speichereffizient arbeitet, aber der Sonderfall eines Datentyps <code>T</code> aus genau einem Wertekonstruktor mit genau einem Feld ist hier deswegen interessant, weil bei so einem Datentyp eine Eins-zu-eins-Beziehung zwischen den Werten von <code>T</code> und den Werten des Feldtyps besteht. Hier ein Beispiel:</p><pre><code>-- Haskell
+data WrapInt = Wrap Int
+</code></pre><p>Dann gilt die Eins-zu-eins-Beziehung:</p><pre><code>...
+Wrap -3 &lt;--&gt; -3 
+Wrap -2 &lt;--&gt; -2 
+Wrap -1 &lt;--&gt; -1 
+Wrap 0  &lt;--&gt; 0 
+Wrap 1  &lt;--&gt; 1 
+Wrap 2  &lt;--&gt; 2 
+Wrap 3  &lt;--&gt; 3 
+Wrap 4  &lt;--&gt; 4 
+Wrap 5  &lt;--&gt; 5 
+Wrap 6  &lt;--&gt; 6 
+Wrap 7  &lt;--&gt; 7 
+...
+</code></pre><p>In der Mathematik nennt man so eine Eins-zu-eins-Beziehung einen Isomorphismus. Wenn ein Isomorphismus zwischen Datentypen besteht, ist es schade um den Speicher und die Rechenzeit, die es zur Laufzeit des Programms kostet, Werte zwischen diesen Datentypen zu konvertieren. Hier kommt <code>newtype</code> ins Spiel. Ein Beispiel:</p><pre><code>-- Haskell
+newtype Password = Password String
+</code></pre><p>Es kann sinnvoll sein, für Passwörter einen eigenen Datentyp einzuführen. Am Ende ist natürlich jedes Passwort einfach nur ein String, aber wenn wir auf der Typebene zwischen <code>String</code> und <code>Password</code> streng unterscheiden, können wir z.B. die Erzeugung von schlechen Passwörtern verhindern. Dafür legen wir ein eigenes Modul an, das den Datentyp <code>Password</code> und bspw. eine sorgfältig geschriebene Funktion <code>makePassword : IO Password</code> enthält. Der entscheidende Trick ist, dass wir den Wertekonstruktor <code>Password</code> nicht exportieren. Dadurch ist Code außerhalb dieses Moduls gezwungen, die Funktion <code>makePassword</code> zu verwenden, um an einen <code>Password</code> Wert zu kommen.</p><p>Wir können semantisch (fast) exakt dasselbe auch mit dem <code>data</code> Schlüsselwort erreichen, aber wenn wir das <code>newtype</code> Schlüsselwort verwenden, entfernt der Compiler alle <code>Password</code> Wertekonstruktoren, so dass zur Laufzeit des Programms nur noch gewöhnliche <code>String</code> Werte übrigbleiben. Dadurch entfallen der Speicher und die Rechenzeit, die es sonst zur Laufzeit des Programms gekostet hätte, Werte zwischen diesen Datentypen zu konvertieren.</p><p><em>Übrigens gibt es doch einen semantischen Unterschied zwischen <code>data</code> und <code>newtype</code>, der die Auswertungsstrategie betrifft: Wertekonstruktoren werden bei <code>data</code> verzögert ausgewertet und bei <code>newtype</code> strikt ausgewertet. Was das bedeutet, möchte ich hier nicht erläutern. Der Text ist schon lang genug und der Unterschied ist ohnehin marginal: beide Auswertungsstrategien führen auf den gleichen Wert, wenn sie erfolgreich auswerten. Es gibt aber Fälle in denen die verzögerte Auswertung Erfolg hat aber die strikte Auswertung scheitert. Daher der semantische Unterschied.</em></p><p><strong>Aliase</strong></p><p>Das <code>type</code> Schlüsselwort führt einen Typalias bzw. ein Typsynonym ein. Das ist einfach nur ein weiterer Name für einen existierenden Datentyp. Beispielsweise sind herkömmliche Strings in Haskell nichts weiter als verlinkte Listen von <code>Char</code> Werten. Entsprechend ist der Datentyp <code>String</code> wie folgt definiert:</p><pre><code>-- Haskell
+type String = List Char
+</code></pre><p>Das Beispiel <a href="https://hackage.haskell.org/package/base-4.18.0.0/docs/src/GHC.Base.html#String">stimmt nicht ganz</a>: der Datentyp <code>List Char</code> wird in idiomatischem Haskell als <code>[Char]</code> geschrieben. Darauf möchte ich hier aber nicht näher eingehen. Leider gibt es in Haskell ein paar Schrulligkeiten wie diese, die die Sprache unnötig und ohne substaniellen Mehrwert verkomplizieren. Deswegen bin ich wirklich froh, dass es mittlerweile Alternativen wie Purescript gibt.</p><h2 id="typklassen">Typklassen</h2><p>Typklassen werden unterstützt in Haskell und in Purescript. Sie haben nichts zu tun mit Klassen in der OOP. Ein Konzept aus anderen Sprachen, das mit Typklassen vergleichbar ist, sind Interfaces. Jede Typklasse benennt eine Reihe von Funktionen. Ein Datentyp kann zu einer Typklasse hinzugefügt werden, wenn er alle Funktionen der Typklasse implementiert. Hier ein Beispiel für eine Typklasse mit einer zu implementierenden Funktion:</p><pre><code>-- Purscript
+class Eq a where
+    eq :: a -&gt; a -&gt; Boolean
+</code></pre><p>Ein Datentyp <code>a</code> der Klasse <code>Eq</code> muss also die Funktion <code>eq</code> implementieren, die zwei Werte vom Datentyp <code>a</code> aufnimmt und einen <code>Boolean</code> Wert berechnet. <code>Eq</code> (für equality) ist sowohl in Purescript als auch in Haskell eine vordefinierte Typklasse für die Datentypen, auf denen die Gleichheitsfunktion <code>eq</code> bzw. der Gleichheitsoperator <code>==</code> gegeben sein soll.</p><p>Eine Funktion, die wie <code>eq</code> auf mehreren Datentypen operieren kann, nennt man eine polymorphe Funktion. Wenn der Polymorphismus über Typklassen hergestellt wird, spricht man von Typklassenpolymorphismus. <em>Generisch</em>, <em>parametrisch</em> und <em>polymorph</em> sind hier eng verwandte Begriffe. Wenn es um Datentypen geht, spricht man von generischen oder parametrischen Datentypen. Bei Funktionen spricht man von generischen oder polymorphen Funktionen.</p><p>Den Code für die <code>Eq</code> Typklasse im Purescript Prelude können wir hier nachlesen:</p><p><a href="https://github.com/purescript/purescript-prelude/blob/v6.0.1/src/Data/Eq.purs#L35-L36">https://github.com/purescript/purescript-prelude/blob/v6.0.1/src/Data/Eq.purs#L35-L36</a></p><p>Er stimmt mit der oben angegebenen Definition überein. Direkt darunter befindet sich die Definition für den Gleichheitsoperator:</p><pre><code>infix 4 eq as ==
+</code></pre><p>Die Zeile legt fest, dass der Infix-Operator <code>==</code> ein Alias für die Funktion <code>eq</code> ist und in der Operatorrangfolge an vierter Stelle steht. Wenn <code>==</code> ein Alias für <code>eq</code> ist und <code>eq</code> eine Funktion der Typklasse <code>Eq</code> ist, dann muss ein Datentyp die Klasse <code>Eq</code> implementieren, damit der Operator <code>==</code> für seine Werte verfügbar ist. Probieren wir das aus:</p><pre><code>-- Purescript Repl
+
+&gt; 123 == 123
+true
+
+&gt; 123 == 124
+false
+
+&gt; &quot;abc&quot; == &quot;abc&quot;
+true
+
+&gt; &quot;abc&quot; == &quot;bcd&quot;
+false
+
+&gt; false == false
+true
+
+&gt; false == true
+false
+</code></pre><p>Demnach implementieren die Datentypen <code>Int</code>, <code>String</code> und <code>Boolean</code> die Typklasse <code>Eq</code>. Unser selbst definierter Datentyp <code>Bool</code> implementiert <code>Eq</code> noch nicht:</p><pre><code>-- Purescript Repl
+
+&gt; data Bool = False | True
+
+&gt; False == False
+...
+No type class instance was found for
+
+  Data.Eq.Eq Bool
+...
+</code></pre><p>Das können wir aber mit einer Instanzdeklaration nachholen. Mit einer Instanzdeklaration fügt man einen Datentyp zu einer Typklasse hinzu. Anschließend kann man die Funktionen und Operatoren der Typklasse auf Werte von diesem Datentyp anwenden:</p><pre><code>-- Purescript
+
+instance Eq Bool where
+    eq a b = case [a,b] of
+        [False,False] -&gt; true
+        [True,True] -&gt; true
+        _ -&gt;false
+
+-- Purescript Repl
+
+&gt; False == False
+true
+</code></pre><p>Damit ist geklärt, was Typklassen sind: ein Formalismus um polymorphe Funktionen zu beschreiben. Oft hängt an den Funktionen einer Typklasse eine bestimmte Erwartungshaltung hinsichtlich ihrer Semantik, die vom Typsystem nicht erfasst wird. Beispielsweise hätten wir <code>eq</code> auch so angeben können:</p><pre><code>-- Purescript
+
+eq a b = case [a,b] of
+    [False,False] -&gt; False
+    [True,True] -&gt; False
+    _ -&gt;True
+</code></pre><p>Damit würde <code>eq</code> nicht mehr auf Gleichheit prüfen sondern auf Ungleichheit. Der Compiler würde die Definition trotzdem akzeptieren, weil der Datentyp passt. Aber der Gleichheitsoperator <code>==</code> würde sich für diesen Datentyp anders verhalten als erwartet und damit für reichlich Verwirrung sorgen.</p><p>Man kann zwischen Typklassen auch Abhängigkeiten definieren:</p><pre><code>-- Purescript
+class (A T, B T, C T) &lt;= D T ...
+</code></pre><p>Das bedeutet, dass ein Datentyp <code>T</code> nur dann zur Typklasse <code>D</code> gehören kann, wenn er auch zu den Typklassen <code>A</code>, <code>B</code> und <code>C</code> gehört. In Haskell sind solche Abhängigkeiten auch möglich. Die Syntax ist fast identisch. Nur der Doppelpfeil wird in Haskell umgekehrt notiert: <code>=&gt;</code>. Wenn links vom Pfeil nur eine Typklasse steht, können die Klammern entfallen.</p><p>Elm unterstützt keine Typklassen. In Haskell und Purescript sind zum Beispiel die arithmetischen Operatoren auf den verschiedenen numerischen Datentypen über Typklassen implementiert:</p><pre><code>-- Purescript Repl
+
+&gt; :type (+)
+forall (a :: Type). Semiring a =&gt; a -&gt; a -&gt; a
+
+&gt; :type (-)
+forall (a :: Type). Ring a =&gt; a -&gt; a -&gt; a
+
+&gt; :type (*)
+forall (a :: Type). Semiring a =&gt; a -&gt; a -&gt; a
+
+&gt; :type (/)
+forall (a :: Type). EuclideanRing a =&gt; a -&gt; a -&gt; a
+</code></pre><p>Demnach ist der Operator <code>+</code> in Purescript auf den Datentypen gegeben, die zur Typklasse <code>Semiring</code> gehören, der Operator <code>-</code> auf den Datentypen, die zur Typklasse <code>Ring</code> gehören, usw. Sowohl Haskell als auch Purescript haben eine mathematisch interessante Typklassenhierarchie, aber wenn man sich für Begriffe wie <em>Halbring</em>, <em>Ring</em> und <em>euklidischer Ring</em> nicht interessiert, kann man sie ignorieren: sich mit diesen Begriffen herumzuschlagen, ist <strong>keine</strong> Voraussetzung dafür, in diesen Sprachen zu programmieren!!!</p><p>Typische Idiome der funktionalen Programmierung, wie <code>map</code>, <code>foldr</code>, <code>foldl</code>, <code>traverse</code>, oder der monadische <em>bind</em> Operator <code>&gt;&gt;=</code> sind ebenfalls über entsprechende Typklassen als polymorphe Funktionen definiert. Hier operiert <code>map</code> auf zwei verschiedenen Datentypen:</p><pre><code>-- Purescript Repl
+
+&gt; map (_*2) [1,2,3]
+[2,4,6]
+
+&gt; import Data.Maybe
+
+&gt; map (_*2) (Just 3)
+(Just 6)
+</code></pre><p>Es kommt selten vor, dass ich eigene Typklassen schreibe, weil es mir produktiver erscheint, konkreten Code zu schreiben und dabei nicht darüber nachzudenken, wo sich strukturelle Übereinstimmungen verbergen könnten, aus denen sich vielleicht polymorphe Funktionen ableiten lassen. Probleme, bei denen ich Typklassen vielleicht einsetzen würde, sind Serialisierung und Persistenz. Beispielsweise könnte die Serialisierung und Deserialisierung zwischen einem Datentyp <code>a</code> und Json über zwei polymorphe Funktionen ablaufen:</p><pre><code>-- Purescript
+class JsonSerializable a where
+    toJson :: a -&gt; String
+    fromJson :: String -&gt; Maybe a
+</code></pre><p>Dazu würde ich noch fordern, dass für alle Instanzdeklarationen gelten sollte:</p><pre><code>fromJson ( toJson value ) == Just value
+map toJson ( fromJson string ) == Just string
+</code></pre><p>Diese Regeln kann man zwar nicht vom Compiler absichern lassen, aber eine <code>JsonSerializable</code> Instanz, die sie nicht einhält, ist offensichtlich unbrauchbar.</p><p>Eine Typklasse für die Persistenz in einer Datenbank könnte so aussehen:</p><pre><code>-- Haskell
+class Db a where
+    insert :: a -&gt; IO String
+    update :: String -&gt; a -&gt; IO ()
+    read :: String -&gt; IO ( Maybe a )
+</code></pre><p>Ich muss unbedingt dazusagen, dass ich mir darüber maximal drei Minuten Gedanken gemacht habe. Es ist sehr wahrscheinlich, dass ich hier irgendetwas entscheidendes vergessen oder übersehen habe. Als Beispiel sollte uns das an dieser Stelle trotzdem genügen. Ich beschreibe kurz die Funktionen:</p><ul><li><code>insert</code> persistiert einen Wert vom Datentyp <code>a</code> als neuen Record in der Datenbank und liefert einen String, den wir später als Schlüssel verwenden können, um diesen Wert zu aktualisieren oder wieder auszulesen.</li><li><code>update</code> nimmt einen String als Schlüssel entgegen und aktualisiert den entsprechenden Record in der Datenbank mit einem Wert vom Datentyp <code>a</code>.</li><li><code>read</code> nimmt einen Schlüssel entgegen und liefert den entsprechenden Wert vom Datentyp <code>a</code> aus der Datenbank. Weil wir nicht garantieren können, dass jeder Schlüssel auf einen gültigen Record in der Datenbank verweist, ist dieser Wert in einen <code>Maybe</code> Kontext eingeschlossen.</li></ul><p>Ich hätte wirklich Lust, herauszufinden, ob das ein gutes Design oder zu naiv ist, aber erst muss ich diesen Text fertig schreiben.</p><p>Im nächsten Abschnitt gehe ich auf Multiparameter-Typklassen ein. Vorher möchte ich noch eine Bemerkung zu Typklassen im Allgemeinen loswerden: Typklassenpolymorphie ist ein produktives Konzept, aber es lohnt sich nicht immer, auf Typklassen und polymorphe Funktionen zu setzen. Wenn die Polymorphie einem formalen Kalkül folgt, so wie es bei der Typklasse <code>Eq</code> und bei den arithmetischen Operationen der Fall ist, oder wenn es darum geht, Datentypen um Funktionalität zu erweitern wie bei der Typklasse <code>JsonSerialize</code>, dann sind Typklassen sinnvoll. Aber man sollte nicht versuchen, Typklassenpolymorphie zu erzwingen: manchmal ist der Code besser ohne Typklassen. Elm kommt ganz ohne Typklassen aus.</p><h2 id="multiparameter-typklassen">Multiparameter-Typklassen</h2><p><em>Eine Vorbemerkung: Man muss bei den Programmierkonzepten der Typebene, die ich hier vorstelle, ein bisschen darauf achten, dass man den Ball flach hält. Wenn man mit einem vordefinierten Datentyp gut auskommt, muss man dafür keinen ADT definieren. Wenn es keinen Grund dafür gibt, einen parametrischen ADT zu definieren, sollte man es bei einem parameterlosen ADT belassen. Wenn man sich nicht ganz sicher ist, ob man eine polymorphe oder mehrere monomorphe Funktionen definieren sollte, ist es besser, auf Polymorphie zu verzichten. Dieser Appell gilt umso mehr für die Konzepte, die jetzt folgen. Mit einem guten Verständnis für ADTs, parametrische ADTs und einfache Typklassen ist man schon sehr gut aufgestellt. Solange man diese Konzepte nicht richtig verinnerlicht hat, muss man sich mit den Konzepten, die jetzt noch folgen, nicht befassen.</em></p><p>Typklassen können mehr als einen Typparameter haben. Auf die Weise können die polymorphen Funktionen einer Typklasse Beziehungen zwischen Datentypen beschreiben. Die Typklasse <code>Db</code> von gerade eben bietet sich an, um zu zeigen, wofür das nützlich sein kann. Mich stört an dieser Typklasse ein bisschen, dass der Datentyp für die Schlüssel auf <code>String</code> festgelegt ist. Warum nicht <code>Int</code>? Oder ein spezieller Datentyp <code>Uuid</code> für sogenannte <em>Universally Unique Identifiers</em>? Also erweitern wir diese einfache Typklasse zu einer Typklasse mit zwei Typparametern:</p><pre><code>-- Haskell
+class Db key value where
+    insert :: value -&gt; IO key
+    update :: key -&gt; value -&gt; IO ()
+    read :: key -&gt; IO ( Maybe value )
+</code></pre><p>Auf diese Weise sind wir für die Schlüssel nicht auf den Datentyp <code>String</code> festgelegt, sondern können dafür einen Datentyp frei wählen. Hier noch ein Beispiel für eine Multiparameter-Typklasse aus dem Purescript-Buch:</p><pre><code>-- Purescript
+class Stream stream element where
+    uncons :: stream -&gt; Maybe { head :: element , tail :: stream }
+</code></pre><p>Die Idee dabei ist, dass ein Wert vom Datentyp <code>stream</code> ein Datenstrom aus Werten vom Datentyp <code>element</code> ist. Die Funktion <code>uncons</code> trennt diesen Datenstrom auf in den ersten Wert (<code>head</code>) und den Rest des Datenstroms (<code>tail</code>). Auf die Weise lassen sich die Werte in einem Datenstrom durch wiederholtes Aufrufen von <code>uncons</code> der Reihe nach verarbeiten. Sobald der Datenstrom leer ist, liefert <code>uncons</code> den Wert <code>Nothing</code>. Wir fügen die Datentypen <code>String</code> und <code>Char</code> zur Typklasse <code>Stream</code> hinzu, indem wir eine passende <code>uncons</code> Funktion angeben:</p><pre><code>-- Purescript
+instance Stream String Char where
+    uncons = String.uncons
+</code></pre><p>Dass die Funktion <code>String.uncons</code> hier genau passt, ist günstig für uns. Als nächstes fügen wir den generischen Datentyp <code>Array a</code> zusammen mit dem entsprechenden Datentyp <code>a</code> zur Typklasse <code>Stream</code> hinzu. Auch hier gibt es wieder eine passende <code>uncons</code> Funktion für Arrays:</p><pre><code>-- Purescript
+instance Stream ( Array a ) a where
+    uncons = Array.uncons
+</code></pre><p>Jetzt können wir mit der polymorphen <code>uncons</code> Funktion der <code>Stream</code> Typklasse sowohl <code>Char</code> Werte aus <code>String</code> Datenströmen als auch <code>a</code> Werte aus <code>Array a</code> Datenströmen entnehmen.</p><h2 id="funktionale-abhängigkeiten">Funktionale Abhängigkeiten</h2><p>Es wäre jetzt naheliegend, aus <code>uncons</code> eine <code>tail</code> Funktion abzuleiten:</p><pre><code>-- Purescript
+tail :: String -&gt; Maybe String
+tail stream = map _.tail ( uncons stream )
+</code></pre><p>Wir wenden erst <code>uncons</code> auf das Argument an. Dann wenden wir die Feldfunktion <code>_.tail</code> auf das Zwischenergebnis an. Das Zwischenergebnis ist in einen <code>Maybe</code> Kontext eingebettet. Deswegen müssen wir <code>map</code> einsetzen, um die Feldfunktion auf den Wert im Kontext anzuwenden. Das ist eine sinnvolle Definition. Trotzdem ist der Compiler nicht mit ihr zufrieden:</p><pre><code>No type class instance was found for Main.Stream String t
+</code></pre><p>Was funktioniert hier nicht? Dafür müssen wir (ganz grob) verstehen, wie der Compiler mit polymorphen Funktionen umgeht. Die beiden Instanzdeklarationen haben wir nicht ohne Grund hinzugefügt. Wenn wir die polymorphe Funktion <code>uncons</code> aufrufen, versucht der Compiler, die passenden Datentypen zu ermitteln, um prüfen zu können, ob ihm für diese Datentypen eine Instanzdeklaration bekannt ist. Wir wollen hier natürlich auf die Instanz <code>Stream String Char</code> hinaus. Ein Blick in obige Fehlermeldung verrät, dass die Typinferenz bei <code>Stream String t</code> hängen bleibt. Der Compiler ist offenbar nicht in der Lage, für den Typparameter <code>t</code> zu inferieren, dass es sich um den Datentyp <code>Char</code> handeln muss. Ich weiß nicht, wo genau es klemmt, aber es stimmt, dass wir bei der Definition unserer neuen <code>tail</code> Funktion dem Compiler nirgendwo einen Hinweis darauf geben, dass es sich bei <code>t</code> um <code>Char</code> handeln muss.</p><p>Wenn wir das polymorphe <code>uncons</code> durch <code>String.uncons</code> ersetzen, ist der Compiler zufrieden, aber dann können wir uns die Typklasse gleich sparen. Wenn wir <code>uncons</code> um eine Typannotation ergänzen, die ausdrücklich auf <code>Char</code> hinweist, ist der Compiler ebenfalls zufrieden:</p><pre><code>-- Purescript
+tail :: String -&gt; Maybe String
+tail stream = do
+    let f :: String -&gt; Maybe { head :: Char , tail :: _ }
+        f = uncons
+    map _.tail ( f stream )
+</code></pre><p>Aber schön oder sinnvoll ist das auch nicht. Welchen Wert hat die Typklassenpolymorphie, wenn wir sie erst einführen und sie dann zur Hälfte wieder zurücknehmen?</p><p>Interessanterweise können wir den Compiler auch zufriedenstellen, indem wir die Definition der Typklasse <code>Stream</code> wie folgt anpassen:</p><pre><code>-- Purescript
+class Stream stream element | stream -&gt; element where
+    uncons :: stream -&gt; Maybe { head :: element , tail :: stream }
+</code></pre><p>Hinzugekommen ist der Teil <code>| stream -&gt; element</code> vor dem <code>where</code> Schlüsselwort. Man nennt das eine <em>funktionale Abhängigkeit</em>. Wir vereinbaren dadurch mit dem Compiler, dass sich aus dem Datentyp für den Typparameter <code>stream</code> stets eindeutig ergeben muss, welcher Datentyp für den Typparameter <code>element</code> einzusetzen ist. Das hat bei mir zunächst für Kopfkratzen gesorgt. Dann ist mir aufgefallen, dass wir nur eine einzige Instanzdeklaration der Form <code>Stream String ...</code> angegeben haben, nämlich <code>Stream String Char</code>. Damit ist die funktionale Abhängigkeit stets erfüllt wenn wir für <code>stream</code> den Datentyp <code>String</code> einsetzen: für <code>element</code> kommt dann nur der Datentyp <code>Char</code> in Frage. Die andere Instanzdeklaration <code>Stream ( Array a ) a</code> erfüllt ebenfalls die Forderung nach funktionaler Abhängigkeit, denn wenn <code>Array a</code> (und damit <code>stream</code>) auf einen konkreten Datentyp festgelegt ist, dann ist auch <code>a</code> selbst (und damit <code>element</code>) eindeutig auf einen Datentyp festgelegt. Der Compiler ist damit zufriedengestellt solange wir keine weiteren Instanzdeklarationen hinzufügen, die diese Eindeutigkeit verletzen.</p><h2 id="verallgemeinerte-algebraische-datentypen-gadts">Verallgemeinerte algebraische Datentypen (GADTs)</h2><p>Weiter oben haben wir schon eine Verallgemeinerung der einfachen ADTs kenngenlernt: die parametrischen ADTs. Verallgemeinerung bedeutet, dass das Verallgemeinerte zum Spezialfall des Verallgemeinernden wird. Bei den parametrischen ADTs besteht der Spezialfall eines einfachen, parameterlosen ADT darin, dass die Anzahl seiner Typparameter 0 ist: jeder parameterlose ADT ist ein parametrischer ADT mit 0 Typparametern!</p><p>Die Sprache wird bei solchen Dingen oft etwas ungenau. Wenn wir von einem parametrischen ADT sprechen, meinen wir natürlich einen ADT mit mindestens einem Typparameter, sonst müssten wir den allgemeineren Begriff nicht bemühen. Aber wenn jemand über einen ADT sagt: <em>“das ist kein parametrischer sondern ein einfacher ADT”</em>, dann ist das genaugenommen ein Widerspruch und damit falsch. Im Gespräch sollte man das nicht zum Anlass nehmen, gleich mit dem Belehrfinger zu fuchteln, aber man sollte im Hinterkopf behalten, dass genaugenommen der konkretere Begriff in dem allgemeineren Begriff enthalten ist.</p><p>GADTs (<em>generalized algebraic data types</em>) sind wiederum eine Verallgemeinerung der parametrischen ADTs. Also ist jeder parameterlose und jeder parametrische ADT stets auch ein GADT. Aber auch über ADTs und GADTs wird häufig so gesprochen als seien es disjunkte Konzepte. Zum Beispiel enthält der englische Wikipedia-Artikel über GADTs in seiner aktuellen Form (2023-06) den folgenden Code-Kommentar:</p><pre><code>-- A parametric ADT that is not a GADT
+</code></pre><p>Im Haskell-Wiki und in der GHC-Dokumentation gibt es ähnliche Formulierungen. Das ist nicht schlimm, aber auch hier sollten wir im Hinterkopf behalten, dass formal der konkretere Begriff im allgemeineren Begriff enthalten ist.</p><p><strong>Neue Syntax</strong></p><p>GADTs bringen in Haskell neben der Verallgemeinerung auch eine eigene Syntax mit. Ich möchte zunächst herkömmliche ADTs in dieser GADT-Syntax aufschreiben. Dann schauen wir uns an, worin genau die Verallgemeinerung besteht. Hier noch mal <code>Bool</code> in der herkömmlichen ADT-Syntax:</p><pre><code>-- Haskell
+data Bool
+    = False
+    | True
+</code></pre><p>So würde man <code>Bool</code> in der GADT-Syntax schreiben:</p><pre><code>-- Haskell
+data Bool where
+    False :: Bool
+    True :: Bool
+</code></pre><p>Der <code>Ampel</code> Datentyp in herkömmlicher ADT-Syntax:</p><pre><code>-- Haskell
+data Ampel
+    = Grün
+    | Gelb
+    | Rot
+</code></pre><p>Der <code>Ampel</code> Datentyp in GADT-Syntax:</p><pre><code>-- Ampel in GADT-Syntax
+data Ampel where
+    Grün :: Ampel
+    Gelb :: Ampel
+    Rot :: Ampel
+</code></pre><p>Herkömmliche ADTs in GADT-Syntax aufzuschreiben, ist kein Gedankenexperiment: die Beispiele sind gültiger Haskell Code und können genau so verwendet werden. Bei der GADT-Syntax fällt gleich auf, dass die Wertekonstruktoren mit Typannotationen versehen sind. Bei parameterlosen ADTs in GADT-Syntax sind diese Typannotationen überflüssig: selbstverständlich haben hier alle Wertekonstruktoren den selben Datentyp. Schauen wir uns als nächstes ein paar echte parametrische ADTs in GADT-Syntax an. Hier noch mal <code>Maybe a</code> in der herkömmlichen Syntax:</p><pre><code>-- Haskell
+data Maybe a
+    = Nothing
+    | Just a
+</code></pre><p>Zum Vergleich, <code>Maybe a</code> in GADT-Syntax:</p><pre><code>-- Haskell
+data Maybe a where
+    Nothing :: Maybe a
+    Just :: a -&gt; Maybe a
+</code></pre><p>Der Wertekonstrukor <code>Just</code> ist interessant. Er hat den Datentyp <code>a -&gt; Maybe a</code>. Das ist immer der Fall, auch wenn wir den Datentyp in der herkömmlichen ADT-Syntax aufschreiben, aber hier schreiben wir den Datentyp explizit hin. Hier noch mal der Datentyp <code>List</code>, diesmal in Haskell:</p><pre><code>-- Haskell
+List a
+    = Nil
+    | Cons a ( List a )
+</code></pre><p>In GADT-Syntax:</p><pre><code>-- Haskell
+List a where
+    Nil :: List a
+    Cons :: a -&gt; List a -&gt; List a
+</code></pre><p>Die neue Syntax für GADTs ist ein Wink mit dem Zaunspfahl bzgl. der Verallgemeinerung, um die es geht. Bei einem herkömmlichen parametrischen ADT kann jeder Typparameter stets nur für alle Wertekontruktoren gemeinsam auf einen Datentyp festgelegt werden. Bei einem GADT kann jeder Typparameter für verschiedene Wertekonstruktoren auf verschiedene Datentypen festgelegt werden. Hier ein GADT mit drei Wertekonstruktoren:</p><pre><code>-- Haskell
+data MyGadt a where
+    MyInt :: Int -&gt; MyGadt Int
+    MyBool :: Bool -&gt; MyGadt Bool
+    MyString :: String -&gt; MyGadt String
+</code></pre><p>Das besondere an einem GADT wie diesem ist, dass die Wertekonstruktoren den Datentyp jeweils unterschiedlich konkretisieren: der Wertekonstruktor <code>MyInt</code> erzeugt immer einen <code>MyGadt Int</code>, der Wertekonstruktor <code>MyBool</code> erzeugt immer einen <code>MyGadt Bool</code> und der Wertekonstruktor <code>MyString</code> erzeugt immer einen <code>MyGadt String</code>. Aber <code>MyGadt</code> hat nur diese drei Wertekonstruktoren. Daraus ergibt sich ein entscheidender Sachverhalt: der Typparameter <code>a</code> kann hier konstruktionsbedingt nur die Datentypen <code>Int</code>, <code>Bool</code> oder <code>MyString</code> annehmen.</p><p>Bei einem GADT können wir die Typparameter durch seine Wertekonstruktoren so einschränken, dass konstruktionsbedingt nur noch ganz bestimme Datentypen auf die Typparameter passen. Mehr noch: wir können die Wertekonstruktoren so entwerfen, dass sie Beziehungen zwischen den verschiedenen Konkretisierungen eines generischen Datentyps beschreiben. Es ist ein bisschen so als würden wir mit einem GADT nicht nur einen Datentyp beschreiben, sondern eine ganze Gruppe von Datentypen und ihre Beziehungen zueinander. Wer schon mal eine kleine formale Sprache entworfen und in eine Reihe von Datentypen gegossen hat oder einen Parser für eine formale Sprache geschrieben hat, müsste hier hellhörig werden. Tatsächlich eignen sich GADTs sehr gut dafür, DSLs oder ganze Programmiersprachen zu beschreiben. Grundsätzlich geht das auch mit herkömmlichen ADTs, aber mit GADTs lassen sich solche Beschreibungen kompakter formulieren und mehr Invarianten auf der Typebene festhalten. Als Beispiel dafür schauen wir uns die kleine arithmetische Sprache an, die der Wikipedia-Artikel zu GADTs enthält:</p><pre><code>-- Haskell
+data Expr a where
+    EInt :: Int -&gt; Expr Int
+    EBool :: Bool -&gt; Expr Bool
+    EEqual :: Expr Int -&gt; Expr Int -&gt; Expr Bool
+</code></pre><p>Der Wertekonsturktor <code>EInt</code> erzeugt immer einen <code>Expr Int</code> Wert. Die Wertekonstruktoren <code>EBool</code> und <code>EEqual</code> erzeugen immer einen <code>Expr Bool</code> Wert. Deswegen kann der Typparameter <code>a</code> hier nur die Typen <code>Int</code> und <code>Bool</code> annehmen. Dazu gehört noch die <code>eval</code> Funktion, die einen <code>Expr a</code> Ausdruck in einen Wert vom Typ <code>a</code> überführt:</p><pre><code>-- Haskell
+eval :: Expr a -&gt; a
+eval expr = case expr of
+    EInt n -&gt; n
+    EBool b -&gt; b
+    EEqual a b -&gt; eval a == eval b
+</code></pre><p>Damit sollte das folgende Programm <code>False</code> ausgeben:</p><pre><code>-- Haskell
+main = do
+    let v1 = EInt 123
+    let v2 = EInt 124
+    let result = EEqual v1 v2
+    putStrLn ( show ( eval result ) )
+</code></pre><p>Eine Sache, die mich ein bisschen daran stört, ist dass wir <code>EEqual</code> nicht auf <code>Expr Bool</code> Werte anwenden können. Das ist aber leicht behoben:</p><pre><code>-- Haskell
+
+data Expr a where
+    EInt :: Int -&gt; Expr Int
+    EBool :: Bool -&gt; Expr Bool
+    EEqual :: Eq a =&gt; Expr a -&gt; Expr a -&gt; Expr Bool
+
+eval :: Expr a -&gt; a
+eval expr = case expr of
+    EInt n -&gt; n
+    EBool b -&gt; b
+    EEqual a b -&gt; eval a == eval b
+</code></pre><p>Damit sollte auch das folgende Programm compilieren und <code>False</code> ausgeben:</p><pre><code>-- Haskell
+main = do
+    let v1 = EBool False
+    let v2 = EBool True
+    let result = EEqual v1 v2
+    putStrLn ( show ( eval result ) )
+</code></pre><p>Wie würde man das ohne GADTs modellieren? Keine Ahnung! Aber wir können uns anschauen, was übrigbleibt, wenn wir <code>Expr</code> auf einen parametrischen ADT reduzieren:</p><pre><code>-- Haskell
+data Expr a
+    = EInt Int
+    | EBool Bool
+    | EEqual ( Expr a ) ( Expr a )
+</code></pre><p>Wenn wir den so angepassten Datentyp in der GADT-Syntax aufschreiben, sehen wir besser, was sich geändert hat:</p><pre><code>-- Haskell
+data Expr a where
+    EInt :: Int -&gt; Expr a
+    EBool :: Bool -&gt; Expr a
+    EEqual :: Expr a -&gt; Expr a -&gt; Expr a
+</code></pre><p>Der Datentyp ist so völlig unbrauchbar. Es gibt jetzt keine Beziehung mehr zwischen dem Typparameter <code>a</code> und den Feldtypen von <code>EInt</code> und <code>EBool</code>:</p><pre><code>-- Haskell
+
+v1 :: Expr Int
+v1 = EBool True
+
+v2 :: Expr String
+v2 = EInt 123
+</code></pre><p>Der Wertekonstruktor <code>EEqual</code> ist so auch unbrauchbar. Wenn <code>EEqual</code> einen <code>Expr Bool</code> Wert erzeugen soll, muss er auch auf zwei <code>Expr Bool</code> Werten operieren. Schauen wir uns trotzdem an, wie weit wir bei der <code>eval</code> Funktion kommen:</p><pre><code>-- Haskell
+eval :: Expr a -&gt; a
+eval expr = case expr of
+    EInt n -&gt; undefined
+    EBool b -&gt; undefined
+    EEqual e1 e2 -&gt; undefined
+</code></pre><p>Was sollen wir z.B. für <code>EInt n</code> berechnen? Der Wert <code>n</code> hat hier den Datentyp <code>Int</code>, aber <code>eval</code> operiert auf einem <code>Expr a</code> Wert und erzeugt einen <code>a</code> Wert. Wir bräuchten eine Funktion <code>Int -&gt; a</code> für beliebige Datentypen <code>a</code>. Das wäre zwar rein formal möglich (also typisierbar) aber wie sollen wir für jeden möglichen Datentyp ad hoc und aus dem Nichts einen Wert herzaubern? Die gleiche Frage stellt sich für <code>EBool b</code>. Bei <code>EEqual e1 e2</code> ist das Problem noch gravierender, weil wir nur dann zu einem <code>Bool</code> Wert auswerten können, wenn <code>e1</code> und <code>e2</code> vom Datentyp <code>Expr Bool</code> sind. Die ganze Konstruktion ist also völlig unbrauchbar.</p><p>Wenn wir <code>Expr</code> in einen parameterlosen ADT umbauen, kommt z.B. das heraus:</p><pre><code>-- Haskell
+data Expr
+    = EInt Int
+    | EBool Bool
+    | EEqual Expr Expr
+</code></pre><p>Das erscheint mir auf den ersten Blick schon sinnvoller. Schauen wir uns an, wie <code>eval</code> aussehen könnte:</p><pre><code>-- Haskell
+eval :: Expr -&gt; a
+eval expr = case expr of
+    EInt n -&gt; undefined
+    EBool b -&gt; undefined
+    EEqual e1 e2 -&gt; case ( e1 , e2 ) of
+        ( EInt n1 , EInt n2 ) -&gt; undefined
+        ( EBool b1 , EBool b2 ) -&gt; undefined
+        _ -&gt; undefined
+</code></pre><p>Das ist wieder eine Sackgasse. Wir können <code>eval</code> zwar von <code>Expr -&gt; a</code> konkretisieren auf <code>Expr -&gt; Bool</code> oder auf <code>Expr -&gt; Int</code>, aber das findet immer für die gesamte Funktion inklusive aller Case-Zweige statt. Wir können nicht in einem Case-Zweig nach <code>Bool</code> und im nächsten nach <code>Int</code> auswerten. Überhaupt müssen wir ja nach <code>a</code> auswerten, auch wenn für <code>a</code> weder <code>Bool</code> noch <code>Int</code> eingesetzt worden ist. Wenn wir für <code>a</code> einen konketen Wert einsetzen, wird die Sache einfacher. Für einige Anwendungen genügt sicherlich eine Funktion <code>eval :: Expr -&gt; String</code>:</p><pre><code>-- Haskell
+eval :: Expr -&gt; String
+eval expr = case expr of
+    EInt n -&gt; show n
+    EBool b -&gt; show b
+    EEqual e1 e2 -&gt; case ( e1 , e2 ) of
+        ( EInt n1 , EInt n2 ) -&gt; show ( n1 == n2 )
+        ( EBool b1 , EBool b2 ) -&gt; show ( b1 == b2 )
+        _ -&gt; show False
+</code></pre><p>Andernfalls sehe ich nicht, wie man hier ohne GADTs auskommen könnte. Ich hoffe, ich konnte demonstrieren, was man mit GADTs anstellen kann. Für mich ist das Konzept noch relativ neu.</p><h2 id="epilog">Epilog</h2><p>Dieser Text ist für mich in erster Linie eine Art Selbsttest: kann ich mein Verständnis der Konzepte, die ich hier vorstelle, ausformulieren und aufschreiben, so dass ich hinterher damit zufrieden bin, auch wenn ich den Text zwischenzeitlich für ein paar Wochen beiseite gelegt habe? Wenn nicht, werde ich weiter daran arbeiten (sofern ich Zeit und Lust dazu habe). Mein Bezug zu diesem Thema ist ein praktischer. Bisher bin ich noch nicht dazu gekommen, mich ernsthaft mit Büchern über Typentheorie zu befassen. Insofern hoffe ich, dass sich hier kein Blödsinn eingeschlichen hat. Das wäre mir wirklich peinlich. Wenn der Text noch jemandem außer mir selbst nutzt, freut mich das umso mehr.</p></div><footer class="content__footer"><div class="entry-wrapper"><p class="content__updated">This article was updated on 2025-04-06</p><div class="content__actions"></div></div><nav class="content__nav"><div class="wrapper"><div class="content__nav-inner"><div class="content__nav-prev"><a href="https://nojs.de/negation-in-haskell-und-purescript/" class="content__nav-link" rel="prev"><div><span>Previous</span> Negation in Haskell und Purescript</div></a></div><div class="content__nav-next"><a href="https://nojs.de/tschuessi-mc-post/" class="content__nav-link" rel="next"><div><span>Next</span> Tschüssi, MC Post!</div></a></div></div></div></nav></footer></article></main><footer class="footer"><div class="wrapper"><div class="footer__copyright"><p>Powered by Publii</p></div><button id="backToTop" class="footer__bttop" aria-label="Back to top" title="Back to top"><svg width="20" height="20"><use xlink:href="https://nojs.de/assets/svg/svg-map.svg#toparrow"/></svg></button></div></footer><script defer="defer" src="https://nojs.de/assets/js/scripts.min.js?v=ffcbea6c02c8178d10092962b235a5b0"></script><script>window.publiiThemeMenuConfig={mobileMenuMode:'sidebar',animationSpeed:300,submenuWidth: 'auto',doubleClickTime:500,mobileMenuExpandableSubmenus:true,relatedContainerForOverlayMenuSelector:'.top'};</script><script>var images = document.querySelectorAll('img[loading]');
+        for (var i = 0; i < images.length; i++) {
+            if (images[i].complete) {
+                images[i].classList.add('is-loaded');
+            } else {
+                images[i].addEventListener('load', function () {
+                    this.classList.add('is-loaded');
+                }, false);
+            }
+        }</script></body></html>

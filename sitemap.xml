@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="https://nojs.de/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<url>
+<loc>https://nojs.de/</loc>
+</url>
+<url>
+<loc>https://nojs.de/adts-gadts-typklassen/</loc>
+<lastmod>2025-04-06T12:43:32+02:00</lastmod>
+</url>
+<url>
+<loc>https://nojs.de/closures/</loc>
+<lastmod>2025-04-06T12:39:21+02:00</lastmod>
+</url>
+<url>
+<loc>https://nojs.de/digital-gardening/</loc>
+<lastmod>2025-04-06T09:20:48+02:00</lastmod>
+</url>
+<url>
+<loc>https://nojs.de/hello/</loc>
+<lastmod>2025-04-02T23:09:22+02:00</lastmod>
+</url>
+<url>
+<loc>https://nojs.de/hello-2/</loc>
+<lastmod>2025-04-02T23:09:28+02:00</lastmod>
+</url>
+<url>
+<loc>https://nojs.de/negation-in-haskell-und-purescript/</loc>
+<lastmod>2025-04-06T12:41:17+02:00</lastmod>
+</url>
+<url>
+<loc>https://nojs.de/nix-expression-language/</loc>
+<lastmod>2025-04-06T09:40:24+02:00</lastmod>
+</url>
+<url>
+<loc>https://nojs.de/trial-beim-mc-post-leipzig/</loc>
+<lastmod>2025-04-06T12:51:17+02:00</lastmod>
+</url>
+<url>
+<loc>https://nojs.de/tschuessi-mc-post/</loc>
+<lastmod>2025-04-06T12:50:32+02:00</lastmod>
+</url>
+</urlset>
