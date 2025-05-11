@@ -3,12 +3,69 @@
     <title>Aramís Concepción Durán</title>
     <link href="https://nojs.de/feed.xml" rel="self" />
     <link href="https://nojs.de" />
-    <updated>2025-04-07T06:54:16+02:00</updated>
+    <updated>2025-05-11T10:35:46+02:00</updated>
     <author>
         <name>Aramís Concepción Durán</name>
     </author>
     <id>https://nojs.de</id>
 
+    <entry>
+        <title>JSON-Serialisierung von LINQ-Expressions</title>
+        <author>
+            <name>Aramís Concepción Durán</name>
+        </author>
+        <link href="https://nojs.de/json-serialisierung-von-linq-expressions/"/>
+        <id>https://nojs.de/json-serialisierung-von-linq-expressions/</id>
+
+        <updated>2025-05-11T10:35:46+02:00</updated>
+            <summary></summary>
+        <content type="html">
+            <![CDATA[
+                <p>Ich sehe hin und wieder C# Code, der via <a href="https://www.nuget.org/packages/mongodb.driver">MongoDB.Driver</a> Daten aus MongoDB-Collections aggregiert, aufgerufen über eine Web-API und eine vorgeschaltete Connector-Klasse mit statischen Wrapper-Methoden für die Bedienung der API-Endpunkte.</p><p>Wenn die Daten nicht nur paginiert sondern auch gefiltert werden sollen, stellt sich natürlich die Frage, wie man auf dem Hinweg das Filterkriterium kodiert und serialisiert.  Bisher habe ich die folgende Antwort gesehen: ad-hoc ein DTO zusammenstricken, das jeweils eine Property enthält für die konkreten Filteroptionen, die jetzt (oder vielleicht später) benötigt werden.  Ein Gedanke dabei ist sicherlich, dass man dieses Datentransferobjekt im Nachhinein erweitern kann sobald neue Filteranforderungen auftauchen.</p><p>Für die Posts in einem Blog könnte das so aussehen:</p><pre><code>Class PostsRequest
+{
+    string? Author { get; set; }
+    DateTime? MinCreated { get; set; }
+    List&lt;string&gt;? Tags { get; set; }
+}
+</code></pre>
+<p>Der Controller-Code nimmt dieses Objekt entgegen und konstruiert daraus einen Filter für die Aggregation der Daten:</p><ol>
+<li>Erzeuge einen leeren Filter.</li>
+<li>Wenn <code>r.Author is not null</code>, füge <code>x =&gt; x.Author == r.Author</code> hinzu.</li>
+<li>Wenn <code>r.MinCreated is not null</code>, füge <code>x =&gt; x.Created &gt;= r.MinCreated</code> hinzu.</li>
+<li>Wenn <code>r.Tags.IsNotNullOrEmpty()</code>, füge <code>x.Tags.Contains(r.Tags)</code> hinzu (oder so ähnlich).</li>
+</ol>
+<p>Aber was ist wenn ich mehrere Authoren angeben möchte?  Dann muss <code>PostsRequest</code> entsprechend angepasst und <code>Author</code> von <code>string?</code> auf <code>List&lt;string&gt;?</code> umgestellt werden.  Der Server-Code, der den eigentlichen Filter konstruiert, muss dafür ebenfalls angepasst werden.  Bekomme ich dann die Posts jeweils aller angegebenen Authoren?  Oder nur die Posts, die von allen angegebenen Authoren gemeinsam verfasst wurden?  Oder beides?  Hoffentlich ist <code>PostsRequest</code> entsprechend dokumentiert.  Hoffentlich passt die Dokumentation zur tatsächlichen Implementierung des Filters.  Hoffentlich hat niemand im Nachhinein den Filter verändert und dabei vergessen, auch die Dokumentation anzupassen.  Was ist wenn ich alle obigen Fälle benötige?  Füge ich dann Properties für alle Fälle zu <code>PostsRequest</code> hinzu?  Oder eine Art Steuer-Property, die festlegt, wie <code>r.Author</code> vom Server-Code zu interpretieren ist?  Was ist wenn ich <code>MaxCreated</code> benötige?  Oder <code>MinCreated</code> aber nicht inklusiv sondern exklusiv?  Was ist wenn ich ein noch komplexeres Filterkriterium benötige?</p><p>Dieser Ansatz ist die reine Hölle.  Er verkompliziert und verengt eine Sache, die eigentlich eine sehr simple und allgemeine Lösung haben sollte: ich gebe der Connector-Methode ein Prädikat <code>Func&lt;Post, bool&gt;</code> und sie holt mir Einträge vom Typ <code>Post</code> aus der Datenbank, die auf dieses Prädikat passen!</p><p>Damit verschwindet die ganze Sperrigkeit des <code>PostsRequest</code> Ansatzes, weil ich als Aufrufer der Connector-Methode selbst mein Filterprädikat angebe, und zwar in der allgemeinen Form <code>Func&lt;Post,bool&gt;</code>, ohne durch die unpassende Struktur und Semantik eines Request-Datentyps eingeschränkt zu sein; ohne raten zu müssen, was der eigentliche Filter-Code macht, der sich hinter der API auf dem Server versteckt; ohne dass der serverseitige Filter-Code immer wieder angepasst werden muss.</p><p>Die Sache hat natürlich einen Haken, der wahrscheinlich auch der Grund dafür sein wird, dass ich stattdessen Request-DTOs sehe: Wie serialisiert man eigentlich eine <code>Func&lt;Post, bool&gt;</code> um sie via HTTP an eine Web-API zu übertragen und auf der Gegenseite korrekt wieder zu deserialisieren? 🤔</p><p>Es gibt dafür tatsächlich eine Lösung.  Die <code>FilterDefinitionBuilder</code> Klasse in <code>MongoDB.Driver</code> exponiert eine <code>Where</code> Methode:</p><pre><code>public FilterDefinition&lt;T&gt; Where(Expression&lt;Func&lt;T, bool&gt;&gt; expression)
+</code></pre>
+<p>Damit können wir aus einer <code>Expression&lt;Func&lt;Post, bool&gt;&gt;</code> eine <code>FilterDefinition&lt;Post&gt;</code> erzeugen, die der MongoDB-Treiber in seiner Aggregation verwenden kann.  Dabei repräsentiert <code>Expression&lt;Func&lt;Post, bool&gt;&gt;</code> einen AST für den unkompilierten Code einer Funktion <code>Func&lt;Post, bool&gt;</code>.  Ein AST bringt uns der Serialisierung schon ein ganzes Stück näher.  Allerdings kommt das ASP.NET Model Binding mit diesem Datentyp nicht zurecht.</p><p>Immerhin müssen wir den Serializer nicht selbst schreiben.  Sascha Kiefer war so freundlich, dafür das NuGet-Paket <a href="https://www.nuget.org/packages/Serialize.Linq">Serialize.Linq</a> bereitzustellen.  Wir müssen lediglich im Connector-Code unsere Expression serialisieren bevor wie sie übertragen, bzw. im Controller-Code händisch den <code>Request.Body</code> auslesen und deserialisieren:</p><pre><code>// Connector
+
+Expression&lt;Func&lt;T, bool&gt;&gt; expression = x =&gt; pred(x);
+
+ExpressionSerializer expressionSerializer =
+    new Serialize.Linq.Serializers.ExpressionSerializer(
+        new Serialize.Linq.Serializers.JsonSerializer()
+    );
+
+var expressionPayload =
+    expressionSerializer.SerializeText(expression);
+
+// Controller
+
+string expressionPayload =
+    await new StreamReader(Request.Body).ReadToEndAsync();
+
+ExpressionSerializer expressionSerializer =
+    new Serialize.Linq.Serializers.ExpressionSerializer(
+        new Serialize.Linq.Serializers.JsonSerializer()
+    );
+
+var expression =
+    (Expression&lt;Func&lt;T, bool&gt;&gt;)
+    expressionSerializer.DeserializeText(expressionPayload);
+</code></pre>
+<p>Damit spart man sich einen großen Haufen sperrigen Behelfs-Boilerplate-Code für DTOs und serverseitige Filterkonstruktion.  Gleichzeitig behält man alle Freiheitsgrade eines allgemeinen logischen Prädikates.</p><p>Allerdings muss man dabei ein bisschen aufpassen: der MongoDB-Treiber unterstützt keine beliebigen Expressions.  Er unterstützt alle Logik, die man braucht, um ein Filterprädikat zu formulieren, aber keinen beliebigen C#-Code, der sich prinzipiell nicht nach MongoDB übersetzen lässt, wie z.B. <code>DateTime.Now</code> oder Guid.NewGuid()` oder Inline-Funktionen.</p>
+            ]]>
+        </content>
+    </entry>
     <entry>
         <title>Tschüssi, MC Post!</title>
         <author>
