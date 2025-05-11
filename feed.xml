@@ -3,7 +3,7 @@
     <title>Aramís Concepción Durán</title>
     <link href="https://nojs.de/feed.xml" rel="self" />
     <link href="https://nojs.de" />
-    <updated>2025-05-11T10:35:46+02:00</updated>
+    <updated>2025-05-11T21:10:54+02:00</updated>
     <author>
         <name>Aramís Concepción Durán</name>
     </author>
@@ -62,7 +62,7 @@ var expression =
     (Expression&lt;Func&lt;T, bool&gt;&gt;)
     expressionSerializer.DeserializeText(expressionPayload);
 </code></pre>
-<p>Damit spart man sich einen großen Haufen sperrigen Behelfs-Boilerplate-Code für DTOs und serverseitige Filterkonstruktion.  Gleichzeitig behält man alle Freiheitsgrade eines allgemeinen logischen Prädikates.</p><p>Allerdings muss man dabei ein bisschen aufpassen: der MongoDB-Treiber unterstützt keine beliebigen Expressions.  Er unterstützt alle Logik, die man braucht, um ein Filterprädikat zu formulieren, aber keinen beliebigen C#-Code, der sich prinzipiell nicht nach MongoDB übersetzen lässt, wie z.B. <code>DateTime.Now</code> oder Guid.NewGuid()` oder Inline-Funktionen.</p>
+<p>Damit spart man sich einen großen Haufen sperrigen Behelfs-Boilerplate-Code für DTOs und serverseitige Filterkonstruktion.  Gleichzeitig behält man alle Freiheitsgrade eines allgemeinen logischen Prädikates.</p><p>Allerdings muss man dabei ein bisschen aufpassen: der MongoDB-Treiber unterstützt keine beliebigen Expressions.  Er unterstützt alle Logik, die man braucht, um ein Filterprädikat zu formulieren, aber keinen beliebigen C#-Code, der sich prinzipiell nicht nach MongoDB übersetzen lässt, wie z.B. <code>DateTime.Now</code> oder <code>Guid.NewGuid()</code> oder Inline-Funktionen.</p>
             ]]>
         </content>
     </entry>
