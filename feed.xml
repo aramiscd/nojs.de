@@ -3,7 +3,7 @@
     <title>Aramís Concepción Durán</title>
     <link href="https://nojs.de/feed.xml" rel="self" />
     <link href="https://nojs.de" />
-    <updated>2025-09-21T21:15:40+02:00</updated>
+    <updated>2025-09-21T21:46:30+02:00</updated>
     <author>
         <name>Aramís Concepción Durán</name>
     </author>
@@ -706,7 +706,7 @@ data Alter = AlterUnbekannt | Alter Int
 <p>Wir haben diesen Datentyp eingeführt, um zu modellieren, dass das
 Alter einer Person manchmal bekannt und manchmal unbekannt ist.
 Aber dieses Problem kann auch bei anderen Daten auftreten.
-Wir könnten dafür jedes mal einen spezifischen Datentyp einführen:</p><pre><code>-- Purescript
+Wir könnten dafür jedes Mal einen spezifischen Datentyp einführen:</p><pre><code>-- Purescript
 data Name = NameUnbekannt | Name String
 data Alter = AlterUnbekannt | Alter Int
 data Wohnort = WohnortUnbekannt | Wohnort String
