@@ -3,7 +3,7 @@
     <title>Aramís Concepción Durán</title>
     <link href="https://nojs.de/feed.xml" rel="self" />
     <link href="https://nojs.de" />
-    <updated>2025-09-21T21:46:30+02:00</updated>
+    <updated>2026-03-08T07:56:42+01:00</updated>
     <author>
         <name>Aramís Concepción Durán</name>
     </author>
@@ -24,7 +24,7 @@
                 <p>Es gibt ein paar wunderbare Dinge, die in der Welt der grafischen Benutzeroberflächen fehlen, aber auf der Linux-Kommandozeile zum Standardrepertoire gehören.  Ein Beispiel dafür sind Befehlsketten: dabei verknüpft man die Eingaben und Ausgaben verschiedener Programme so, dass sie zusammenarbeiten um etwas zu berechnen.</p><p>Ich möchte das an einer konkreten Befehlskette demonstrieren:</p><pre><code>apt list --installed | cut -d/ -f1 | sort | uniq | fzf -e
 </code></pre>
 <p>Bevor wir die auseinandernehmen, gebe ich eine ganz knappe Einführung.</p><h2 id="ganz-knappe-einführung">Ganz knappe Einführung</h2>
-<p>Die Arbeit mit der Kommandozeile (i.e. Terminal, i.e. Konsole) ist ein textbasiertes Ping-Pong-Spiel mit dem Computer: man setzt am sogenannten Prompt einen Textbefehl ab, dann macht der Computer irgendetwas damit und gibt ggf. eine textuelle Rückmeldung.  Wenn er damit fertig ist, zeigt er wieder den Prompt an und wartet auf den nächsten Textbefehl.</p><p>Das ist eine textbasierte Alternative zur grafischen Interaktion mit dem Computer, bei der man hauptsächlich via Maus oder Touchpad den Cursor über den Bildschirm bewegt, visuelle Elemente bspw. mit einem Klick aktiviert, die Reaktion des Computers wahrnimmt und dann fortfährt.  Nur Bei Bedarf führt man die Hand zur Tastatur und gibt Text ein.</p><p>Gegenüber der grafischen Benutzeroberfläche ist die Kommandozeile eine zugegeben etwas altbackene Form der Bedienung.  Andererseits sind klassische GUIs mit Maus oder Touchpad auch nicht mehr die Norm, denn die meisten Bildschirme sind heute Touch-Bildschirme.</p><h2 id="verkettung-mit-dem-pipe-operator">Verkettung mit dem Pipe-Operator</h2>
+<p>Die Arbeit mit der Kommandozeile (i.e. Terminal, i.e. Konsole) ist ein textbasiertes Ping-Pong-Spiel mit dem Computer: man setzt am sogenannten Prompt einen Textbefehl ab, dann macht der Computer irgendetwas damit und gibt ggf. eine textuelle Rückmeldung.  Wenn er damit fertig ist, zeigt er wieder den Prompt an und wartet auf den nächsten Textbefehl.</p><p>Die Textkonsole ist älter als die heute übliche grafische Benutzeroberfläche, bei der man hauptsächlich via Maus oder Touchpad den Cursor über den Bildschirm bewegt, visuelle Elemente bspw. mit einem Klick aktiviert, die Reaktion des Computers wahrnimmt und dann fortfährt.  Nur Bei Bedarf führt man die Hand zur Tastatur und gibt Text ein.</p><p>Gegenüber der grafischen Benutzeroberfläche ist die Kommandozeile eine zugegeben etwas altbackene Form der Bedienung.  Andererseits sind klassische GUIs mit Maus oder Touchpad auch nicht mehr die Norm, denn die meisten Bildschirme sind heute Touch-Bildschirme.</p><h2 id="verkettung-mit-dem-pipe-operator">Verkettung mit dem Pipe-Operator</h2>
 <p>Ich möchte hier keine Einführung in die Kommandozeile geben, aber wenn du ein Grundverständnis dafür hast, wie man auf ihr Befehle eingibt und die Rückmeldung interpretiert, genügt das.</p><p>Befehle sind kleine Programme, die Datenströme verarbeiten.  Ein Eingabestrom wird konsumiert und verarbeitet.  Dabei werden vielleicht irgendwelche Nebeneffekte hervorgerufen (Dateien erzeugen oder löschen, Netzwerkanfragen absenden, Raketen starten, …).  Schließlich wird ein Ausgabestrom befüllt.</p><p>Manche Programme sind nicht an einem Eingabestrom interessiert.  Bspw. holt sich <code>ls</code> über Systemaufrufe die Informationen über das aktuelle Verzeichnis und seine Inhalte.  Die Auflistung, die <code>ls</code> erzeugt, wird aber über einen Ausgabestrom weitergegeben.</p><p>Wenn du einen einzelnen Befehl absetzt, wird der Ausgabestrom so umgeleitet, dass die Ausgabe direkt unter dem abgesetzten Befehl erscheint.  Bspw. gibst du <code>ls</code> ein, bestätigst mit der Eingabetaste und erhältst dann direkt darunter die gewünschte Auflistung der Verzeichnisinhalte.</p><pre><code>$ ls
 &#39;W6 Wertarbeit Einfädeln W6 N 1800, 1615, 1235⧸61 [WE0sv2XWF54].mkv&#39;
 &#39;W6 Wertarbeit Nähmaschine N 1235⧸61 [GyE0OaKJe14].mkv&#39;
@@ -40,7 +40,7 @@ $
 HALLO
 $ 
 </code></pre>
-<p>Das Beispiel ist trivial, aber vielleicht erkennt man daran schon ganz gut, welche Möglichkeiten sich auftun, wenn man ein kleines Repertpoire an solchen Bausteinen im Kopf hat, die sich gut miteinander kombinieren lassen.</p><h2 id="installierte-softwarepakte-auflisten">Installierte Softwarepakte auflisten</h2>
+<p>Das Beispiel ist trivial, aber vielleicht erkennt man daran schon ganz gut, welche Möglichkeiten sich auftun, wenn man ein kleines Repertoire an solchen Bausteinen im Kopf hat, die sich gut miteinander kombinieren lassen.</p><h2 id="installierte-softwarepakte-auflisten">Installierte Softwarepakte auflisten</h2>
 <p>Jetzt können wir uns der Befehlskette vom Anfang widmen.</p><pre><code>apt list --installed | cut -d/ -f1 | sort | uniq | fzf -e
 </code></pre>
 <p>Der Befehl <code>apt list --installed</code> druckt eine Liste aller installierten Softwarepakete aus, aber die Ausgabe ist sperrig und viel zu lang um daraus schlau zu werden.</p><pre><code>$ apt list --installed
